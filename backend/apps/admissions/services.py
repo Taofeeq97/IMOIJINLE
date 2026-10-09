@@ -181,7 +181,9 @@ def resend_onboarding(*, application: Application, request=None) -> None:
     if application.onboarding_sent_at:
         elapsed = timezone.now() - application.onboarding_sent_at
         if elapsed < timedelta(minutes=1):
-            raise AdmissionsError("Please wait before requesting another link.", code="rate_limited")
+            raise AdmissionsError(
+                "Please wait before requesting another link.", code="rate_limited"
+            )
     raw = _issue_onboarding_token(application)
     _send_onboarding_email(user=application.user, application=application, raw_token=raw)
     application.status = ApplicationStatus.ACCOUNT_PENDING
@@ -189,16 +191,22 @@ def resend_onboarding(*, application: Application, request=None) -> None:
     log_audit(actor=None, action="application.resend_onboarding", obj=application, request=request)
 
 
-def change_application_email(*, application: Application, new_email: str, request=None) -> Application:
+def change_application_email(
+    *, application: Application, new_email: str, request=None
+) -> Application:
     if application.status not in {
         ApplicationStatus.SUBMITTED,
         ApplicationStatus.ACCOUNT_PENDING,
     }:
-        raise AdmissionsError("Email can only be changed before account activation.", code="forbidden")
+        raise AdmissionsError(
+            "Email can only be changed before account activation.", code="forbidden"
+        )
     email_n = new_email.lower().strip()
-    if Application.objects.filter(cohort=application.cohort, applicant_email__iexact=email_n).exclude(
-        pk=application.pk
-    ).exists():
+    if (
+        Application.objects.filter(cohort=application.cohort, applicant_email__iexact=email_n)
+        .exclude(pk=application.pk)
+        .exists()
+    ):
         raise AdmissionsError("Unable to update email.", code="email_unavailable")
 
     user = application.user
@@ -208,7 +216,13 @@ def change_application_email(*, application: Application, new_email: str, reques
     application.save(update_fields=["applicant_email", "updated_at"])
     raw = _issue_onboarding_token(application)
     _send_onboarding_email(user=user, application=application, raw_token=raw)
-    log_audit(actor=None, action="application.change_email", obj=application, after={"email": email_n}, request=request)
+    log_audit(
+        actor=None,
+        action="application.change_email",
+        obj=application,
+        after={"email": email_n},
+        request=request,
+    )
     return application
 
 
@@ -219,7 +233,10 @@ def verify_onboarding_token(*, token: str, application_id: str) -> Application:
         raise AdmissionsError("Invalid link.", code="invalid_token") from exc
     if not application.onboarding_token_hash:
         raise AdmissionsError("This link has already been used.", code="used")
-    if application.onboarding_sent_at and timezone.now() - application.onboarding_sent_at > timedelta(hours=72):
+    if (
+        application.onboarding_sent_at
+        and timezone.now() - application.onboarding_sent_at > timedelta(hours=72)
+    ):
         raise AdmissionsError("This link has expired.", code="expired")
     if _hash_token(token) != application.onboarding_token_hash:
         raise AdmissionsError("Invalid link.", code="invalid_token")
@@ -227,7 +244,9 @@ def verify_onboarding_token(*, token: str, application_id: str) -> Application:
 
 
 @transaction.atomic
-def set_password_from_onboarding(*, token: str, application_id: str, password: str, request=None) -> User:
+def set_password_from_onboarding(
+    *, token: str, application_id: str, password: str, request=None
+) -> User:
     application = verify_onboarding_token(token=token, application_id=application_id)
     user = application.user
     user.set_password(password)
@@ -314,7 +333,9 @@ def admit_application(
         ApplicationStatus.SUBMITTED,
         ApplicationStatus.ACCOUNT_PENDING,
     }:
-        raise AdmissionsError("Applicant must activate their account first.", code="account_inactive")
+        raise AdmissionsError(
+            "Applicant must activate their account first.", code="account_inactive"
+        )
 
     classes = list(Class.objects.filter(id__in=class_ids, cohort=application.cohort))
     if not classes:
@@ -347,9 +368,7 @@ def admit_application(
             if enr:
                 from apps.payments.fees import generate_invoices_for_enrollment
 
-                generate_invoices_for_enrollment(
-                    enrollment=enr, actor=admitted_by, request=request
-                )
+                generate_invoices_for_enrollment(enrollment=enr, actor=admitted_by, request=request)
         if str(class_obj.id) not in admitted_ids:
             admitted_ids.append(str(class_obj.id))
 

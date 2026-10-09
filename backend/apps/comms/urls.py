@@ -15,6 +15,10 @@ urlpatterns = [
         views.NotificationReadView.as_view(),
         name="notification-read",
     ),
-    path("me/notification-preferences", views.NotificationPrefsView.as_view(), name="notification-prefs"),
+    path(
+        "me/notification-preferences",
+        views.NotificationPrefsView.as_view(),
+        name="notification-prefs",
+    ),
     path("analytics/overview", views.AnalyticsOverviewView.as_view(), name="analytics-overview"),
 ]

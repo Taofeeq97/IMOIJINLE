@@ -28,7 +28,11 @@ class AnnouncementListCreateView(APIView):
         return Response(AnnouncementSerializer(rows, many=True).data)
 
     def post(self, request):
-        if not (can(request.user, "programs.manage") or can(request.user, "teach") or request.user.is_staff):
+        if not (
+            can(request.user, "programs.manage")
+            or can(request.user, "teach")
+            or request.user.is_staff
+        ):
             return Response({"code": "forbidden", "message": "Forbidden"}, status=403)
         ser = AnnouncementWriteSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
@@ -56,7 +60,11 @@ class AnnouncementDetailView(APIView):
         return Announcement.objects.filter(id=announcement_id).first()
 
     def patch(self, request, announcement_id):
-        if not (can(request.user, "programs.manage") or can(request.user, "teach") or request.user.is_staff):
+        if not (
+            can(request.user, "programs.manage")
+            or can(request.user, "teach")
+            or request.user.is_staff
+        ):
             return Response({"code": "forbidden", "message": "Forbidden"}, status=403)
         ann = self._get(announcement_id)
         if not ann:
@@ -121,6 +129,10 @@ class AnalyticsOverviewView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        if not (can(request.user, "programs.manage") or can(request.user, "teach") or request.user.is_staff):
+        if not (
+            can(request.user, "programs.manage")
+            or can(request.user, "teach")
+            or request.user.is_staff
+        ):
             return Response({"code": "forbidden", "message": "Forbidden"}, status=403)
         return Response(services.analytics_overview(cohort_id=request.query_params.get("cohort")))

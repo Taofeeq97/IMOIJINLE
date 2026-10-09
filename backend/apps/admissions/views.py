@@ -40,10 +40,17 @@ class PublicCohortListView(APIView):
     authentication_classes = []
 
     def get(self, request):
-        qs = Cohort.objects.filter(
-            status__in=["applications_open", "running"]
-        ).order_by("order", "-created_at")
-        return Response({"count": qs.count(), "next": None, "previous": None, "results": CohortSerializer(qs, many=True).data})
+        qs = Cohort.objects.filter(status__in=["applications_open", "running"]).order_by(
+            "order", "-created_at"
+        )
+        return Response(
+            {
+                "count": qs.count(),
+                "next": None,
+                "previous": None,
+                "results": CohortSerializer(qs, many=True).data,
+            }
+        )
 
 
 class PublicCohortView(APIView):
@@ -55,7 +62,12 @@ class PublicCohortView(APIView):
             cohort = Cohort.objects.get(slug=slug)
         except Cohort.DoesNotExist:
             return Response(
-                {"code": "not_found", "message": "Cohort not found.", "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": "not_found",
+                    "message": "Cohort not found.",
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_404_NOT_FOUND,
             )
         classes = Class.objects.filter(cohort=cohort, status="published")
@@ -86,7 +98,12 @@ class PublicApplyView(APIView):
             )
         except services.AdmissionsError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response(
@@ -113,7 +130,12 @@ class ResendOnboardingView(APIView):
             pass
         except services.AdmissionsError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response({"detail": "If eligible, a new link was sent."})
@@ -134,12 +156,22 @@ class ChangeApplicationEmailView(APIView):
             )
         except Application.DoesNotExist:
             return Response(
-                {"code": "not_found", "message": "Application not found.", "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": "not_found",
+                    "message": "Application not found.",
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_404_NOT_FOUND,
             )
         except services.AdmissionsError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response({"detail": "Email updated. Check your inbox for a new setup link."})
@@ -160,10 +192,21 @@ class OnboardingVerifyView(APIView):
             )
         except services.AdmissionsError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        return Response({"valid": True, "email": application.applicant_email, "name": application.applicant_name})
+        return Response(
+            {
+                "valid": True,
+                "email": application.applicant_email,
+                "name": application.applicant_name,
+            }
+        )
 
 
 class OnboardingSetPasswordView(APIView):
@@ -183,7 +226,12 @@ class OnboardingSetPasswordView(APIView):
             )
         except services.AdmissionsError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         access, refresh = issue_tokens(user)
@@ -210,7 +258,12 @@ class PortalApplicationDetailView(APIView):
             )
         except Application.DoesNotExist:
             return Response(
-                {"code": "not_found", "message": "Not found.", "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": "not_found",
+                    "message": "Not found.",
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_404_NOT_FOUND,
             )
         return Response(ApplicationSerializer(application).data)
@@ -226,12 +279,22 @@ class PortalPayView(APIView):
             )
         except Application.DoesNotExist:
             return Response(
-                {"code": "not_found", "message": "Not found.", "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": "not_found",
+                    "message": "Not found.",
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_404_NOT_FOUND,
             )
         if not application.fee_invoice_id:
             return Response(
-                {"code": "no_fee", "message": "No application fee due.", "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": "no_fee",
+                    "message": "No application fee due.",
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         idem = request.headers.get("Idempotency-Key", "")
@@ -245,7 +308,12 @@ class PortalPayView(APIView):
             )
         except PaymentError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response(
@@ -253,7 +321,9 @@ class PortalPayView(APIView):
                 "reference": payment.reference,
                 "authorization_url": payment.authorization_url,
                 "access_code": payment.access_code,
-                "public_key": __import__("apps.payments.services", fromlist=["_public_key"])._public_key(),
+                "public_key": __import__(
+                    "apps.payments.services", fromlist=["_public_key"]
+                )._public_key(),
                 "amount_minor": payment.amount_minor,
                 "currency": payment.currency,
             }
@@ -284,12 +354,21 @@ class AdminApplicationDetailView(APIView):
             )
         except Application.DoesNotExist:
             return Response(
-                {"code": "not_found", "message": "Not found.", "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": "not_found",
+                    "message": "Not found.",
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_404_NOT_FOUND,
             )
         data = ApplicationSerializer(application).data
         data["admissions"] = [
-            {"class_id": str(a.class_ref_id), "class_name": a.class_ref.name, "admitted_at": a.admitted_at}
+            {
+                "class_id": str(a.class_ref_id),
+                "class_name": a.class_ref.name,
+                "admitted_at": a.admitted_at,
+            }
             for a in application.admissions.select_related("class_ref")
         ]
         return Response(data)
@@ -315,12 +394,22 @@ class AdmitApplicationView(APIView):
             )
         except Application.DoesNotExist:
             return Response(
-                {"code": "not_found", "message": "Not found.", "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": "not_found",
+                    "message": "Not found.",
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_404_NOT_FOUND,
             )
         except services.AdmissionsError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response(ApplicationSerializer(application).data)
@@ -335,7 +424,9 @@ class BulkAdmitView(APIView):
         results = []
         for app_id in ser.validated_data["application_ids"]:
             try:
-                application = Application.objects.select_related("cohort", "fee_invoice", "user").get(id=app_id)
+                application = Application.objects.select_related(
+                    "cohort", "fee_invoice", "user"
+                ).get(id=app_id)
                 application = services.admit_application(
                     application=application,
                     class_ids=ser.validated_data["class_ids"],
@@ -344,7 +435,9 @@ class BulkAdmitView(APIView):
                     notes=ser.validated_data.get("notes") or "",
                     request=request,
                 )
-                results.append({"id": str(application.id), "ok": True, "status": application.status})
+                results.append(
+                    {"id": str(application.id), "ok": True, "status": application.status}
+                )
             except Exception as exc:  # noqa: BLE001
                 results.append({"id": str(app_id), "ok": False, "error": str(exc)})
         return Response({"results": results})

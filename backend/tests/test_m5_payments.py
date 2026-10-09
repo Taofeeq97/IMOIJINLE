@@ -4,8 +4,8 @@ from rest_framework.test import APIClient
 from apps.accounts.models import Role, User
 from apps.accounts.policies import assign_role
 from apps.admissions.models import Enrollment, EnrollmentStatus
-from apps.payments.models import FeeItem, FeeRule, Payment
 from apps.payments.fees import generate_invoices_for_enrollment
+from apps.payments.models import FeeItem, FeeRule, Payment
 from apps.programs.models import Class, Cohort, CohortStatus, Program, PublishStatus
 
 
@@ -15,7 +15,9 @@ def api():
 
 
 def auth(api, user):
-    r = api.post("/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json")
+    r = api.post(
+        "/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json"
+    )
     assert r.status_code == 200
     api.credentials(HTTP_AUTHORIZATION=f"Bearer {r.data['access']}")
 
@@ -83,7 +85,11 @@ def test_custom_charge_pay_settle_and_finance(api, finance_user, setup, stub_pay
     )
     assert created.status_code == 201, created.data
     assert created.data["invoice_count"] >= 1
-    inv_id = created.data["invoices"][0]["id"] if "invoices" in created.data else created.data.get("invoice_ids", [None])[0]
+    inv_id = (
+        created.data["invoices"][0]["id"]
+        if "invoices" in created.data
+        else created.data.get("invoice_ids", [None])[0]
+    )
     if not inv_id:
         from apps.payments.models import Invoice
 

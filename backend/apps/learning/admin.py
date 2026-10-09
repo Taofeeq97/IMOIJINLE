@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from apps.learning.models import Answer, ItemProgress, Note, Question, SubjectProgress, VideoProgress
+from apps.learning.models import (
+    Answer,
+    ItemProgress,
+    Note,
+    Question,
+    SubjectProgress,
+    VideoProgress,
+)
 
 admin.site.register(ItemProgress)
 admin.site.register(VideoProgress)

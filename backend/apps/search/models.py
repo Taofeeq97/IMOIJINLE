@@ -40,7 +40,9 @@ def unified_search(*, q: str, user, limit: int = 20) -> dict:
     from apps.programs.models import Class, Cohort, Program
 
     for p in Program.objects.filter(Q(title__icontains=q) | Q(slug__icontains=q))[:limit]:
-        results.append({"type": "program", "id": str(p.id), "title": p.title, "href": f"/admin/programs"})
+        results.append(
+            {"type": "program", "id": str(p.id), "title": p.title, "href": "/admin/programs"}
+        )
     for c in Cohort.objects.filter(Q(name__icontains=q) | Q(slug__icontains=q))[:limit]:
         results.append(
             {"type": "cohort", "id": str(c.id), "title": c.name, "href": f"/admin/cohorts/{c.id}"}
@@ -60,7 +62,9 @@ def unified_search(*, q: str, user, limit: int = 20) -> dict:
                 "type": "subject",
                 "id": str(s.id),
                 "title": s.title,
-                "href": f"/subjects/{s.slug}" if not user.is_staff else f"/admin/subjects/{s.id}/manage",
+                "href": f"/subjects/{s.slug}"
+                if not user.is_staff
+                else f"/admin/subjects/{s.id}/manage",
             }
         )
     for st in Subtopic.objects.filter(title__icontains=q).select_related("topic__subject")[:limit]:

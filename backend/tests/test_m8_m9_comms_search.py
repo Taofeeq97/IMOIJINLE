@@ -5,7 +5,7 @@ from apps.accounts.models import Role, User
 from apps.accounts.policies import assign_role
 from apps.admissions.models import Enrollment, EnrollmentStatus
 from apps.courses.models import Subject, SubjectStatus
-from apps.programs.models import Class, ClassSubject, Cohort, CohortStatus, Program, PublishStatus
+from apps.programs.models import Class, Cohort, CohortStatus, Program, PublishStatus
 
 
 @pytest.fixture
@@ -14,22 +14,36 @@ def api():
 
 
 def auth(api, user):
-    r = api.post("/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json")
+    r = api.post(
+        "/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json"
+    )
     assert r.status_code == 200
     api.credentials(HTTP_AUTHORIZATION=f"Bearer {r.data['access']}")
 
 
 @pytest.mark.django_db
 def test_announcements_notifications_analytics_search_oidc(api, db):
-    admin = User.objects.create_user(email="comms@test.local", password="DemoPass123!", is_staff=True)
+    admin = User.objects.create_user(
+        email="comms@test.local", password="DemoPass123!", is_staff=True
+    )
     assign_role(user=admin, role=Role.PROGRAM_ADMIN)
     student = User.objects.create_user(email="listen@test.local", password="DemoPass123!")
     assign_role(user=student, role=Role.STUDENT)
-    program = Program.objects.create(title="Spirit Search", slug="spirit-s", status=PublishStatus.PUBLISHED)
-    cohort = Cohort.objects.create(program=program, name="Coh", slug="coh-s", status=CohortStatus.RUNNING)
-    klass = Class.objects.create(cohort=cohort, name="Cls", slug="cls-s", status=PublishStatus.PUBLISHED)
-    Enrollment.objects.create(user=student, class_ref=klass, cohort=cohort, status=EnrollmentStatus.ACTIVE)
-    Subject.objects.create(title="UniqueSubjectXYZ", slug="unique-subject-xyz", status=SubjectStatus.PUBLISHED)
+    program = Program.objects.create(
+        title="Spirit Search", slug="spirit-s", status=PublishStatus.PUBLISHED
+    )
+    cohort = Cohort.objects.create(
+        program=program, name="Coh", slug="coh-s", status=CohortStatus.RUNNING
+    )
+    klass = Class.objects.create(
+        cohort=cohort, name="Cls", slug="cls-s", status=PublishStatus.PUBLISHED
+    )
+    Enrollment.objects.create(
+        user=student, class_ref=klass, cohort=cohort, status=EnrollmentStatus.ACTIVE
+    )
+    Subject.objects.create(
+        title="UniqueSubjectXYZ", slug="unique-subject-xyz", status=SubjectStatus.PUBLISHED
+    )
 
     auth(api, admin)
     ann = api.post(

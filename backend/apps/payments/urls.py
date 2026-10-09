@@ -17,7 +17,9 @@ router.register(
 
 urlpatterns = [
     path("webhooks/paystack", views.PaystackWebhookView.as_view(), name="paystack-webhook"),
-    path("payments/<str:reference>/status", views.PaymentStatusView.as_view(), name="payment-status"),
+    path(
+        "payments/<str:reference>/status", views.PaymentStatusView.as_view(), name="payment-status"
+    ),
     path("me/invoices", views.MeInvoicesView.as_view(), name="me-invoices"),
     path("me/payments", views.MeInvoicesView.as_view(), name="me-payments"),
     path("access/explain", views.AccessExplainView.as_view(), name="access-explain"),

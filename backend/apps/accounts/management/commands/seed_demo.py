@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 
 from apps.accounts.models import Role, User
 from apps.accounts.policies import assign_role
+from apps.admissions.models import Enrollment, EnrollmentStatus
 from apps.courses.models import (
     ContentType,
     Subject,
@@ -19,7 +20,6 @@ from apps.orgsettings.models import (
     PaymentGatewaySettings,
     SiteSettings,
 )
-from apps.admissions.models import Enrollment, EnrollmentStatus
 from apps.programs.models import (
     Class,
     ClassSubject,
@@ -96,7 +96,9 @@ class Command(BaseCommand):
             user.save()
             assign_role(user=user, role=role, actor=user)
             users[email] = user
-            self.stdout.write(self.style.SUCCESS(f"{'Created' if created else 'Updated'} {email} ({role})"))
+            self.stdout.write(
+                self.style.SUCCESS(f"{'Created' if created else 'Updated'} {email} ({role})")
+            )
 
         # Cohort is the root container (= academic session). No Program entity in product model.
         cohort_open, _ = Cohort.objects.get_or_create(
@@ -165,12 +167,19 @@ class Command(BaseCommand):
                 "level": SubjectLevel.BEGINNER,
                 "status": SubjectStatus.PUBLISHED,
                 "category": "Foundations",
-                "description_json": {"html": "<p>Orientation and foundations for Spirit Science.</p>"},
+                "description_json": {
+                    "html": "<p>Orientation and foundations for Spirit Science.</p>"
+                },
                 "welcome_message": "Welcome to Introduction to Spirit Science.",
                 "completion_message": "You completed the foundations subject.",
                 "pricing": {"mode": "class_fee", "amount_kobo": 0, "currency": "NGN"},
                 "intended_learners": {
-                    "learn": ["Core concepts", "Study rhythm", "Community norms", "Practice basics"],
+                    "learn": [
+                        "Core concepts",
+                        "Study rhythm",
+                        "Community norms",
+                        "Practice basics",
+                    ],
                     "requirements": ["Open mind"],
                     "audience": ["New students"],
                 },
@@ -179,7 +188,9 @@ class Command(BaseCommand):
         subject_intro.description_json = subject_intro.description_json or {
             "html": "<p>Orientation and foundations for Spirit Science.</p>"
         }
-        subject_intro.welcome_message = subject_intro.welcome_message or "Welcome to Introduction to Spirit Science."
+        subject_intro.welcome_message = (
+            subject_intro.welcome_message or "Welcome to Introduction to Spirit Science."
+        )
         subject_intro.completion_message = (
             subject_intro.completion_message or "You completed the foundations subject."
         )
@@ -239,7 +250,9 @@ class Command(BaseCommand):
                     subtopic=welcome,
                     content_type=ContentType.ARTICLE,
                     title="Welcome article",
-                    body_json={"html": "<p>Welcome to the academy. Read this orientation carefully.</p>"},
+                    body_json={
+                        "html": "<p>Welcome to the academy. Read this orientation carefully.</p>"
+                    },
                     processing_status="ready",
                     duration_s=300,
                 )
@@ -328,7 +341,9 @@ class Command(BaseCommand):
         )
 
         student = users["student@imoijinle.local"]
-        if not Invoice.objects.filter(user=student, fee_item=class_fee, status=InvoiceStatus.OPEN).exists():
+        if not Invoice.objects.filter(
+            user=student, fee_item=class_fee, status=InvoiceStatus.OPEN
+        ).exists():
             inv = Invoice.objects.create(
                 user=student,
                 number=f"IMO-SEED-{foundation.slug}",

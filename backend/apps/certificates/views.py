@@ -191,9 +191,7 @@ class CertificateIssueRuleListCreateView(APIView):
     permission_classes = [IsAuthenticated, CertificatesManagePermission]
 
     def get(self, request):
-        qs = CertificateIssueRule.objects.select_related(
-            "template", "class_ref", "subject"
-        ).all()
+        qs = CertificateIssueRule.objects.select_related("template", "class_ref", "subject").all()
         return Response(CertificateIssueRuleSerializer(qs, many=True).data)
 
     def post(self, request):
@@ -245,9 +243,7 @@ class CertificateIssueRuleListCreateView(APIView):
             numbering_pattern=data.get("numbering_pattern") or "IMO-{yyyy}-{seq:5}",
             is_active=data.get("is_active", True),
         )
-        return Response(
-            CertificateIssueRuleSerializer(rule).data, status=status.HTTP_201_CREATED
-        )
+        return Response(CertificateIssueRuleSerializer(rule).data, status=status.HTTP_201_CREATED)
 
 
 class CertificateIssueRuleDetailView(APIView):

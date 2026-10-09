@@ -14,22 +14,35 @@ def api():
 
 
 def auth(api, user):
-    r = api.post("/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json")
+    r = api.post(
+        "/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json"
+    )
     assert r.status_code == 200
     api.credentials(HTTP_AUTHORIZATION=f"Bearer {r.data['access']}")
 
 
 @pytest.mark.django_db
 def test_certificate_preview_issue_verify_revoke(api, db):
-    admin = User.objects.create_user(email="certadmin@test.local", password="DemoPass123!", is_staff=True)
+    admin = User.objects.create_user(
+        email="certadmin@test.local", password="DemoPass123!", is_staff=True
+    )
     assign_role(user=admin, role=Role.PROGRAM_ADMIN)
     student = User.objects.create_user(
-        email="certstudent@test.local", password="DemoPass123!", first_name="Ada", last_name="Lovelace"
+        email="certstudent@test.local",
+        password="DemoPass123!",
+        first_name="Ada",
+        last_name="Lovelace",
     )
     assign_role(user=student, role=Role.STUDENT)
-    program = Program.objects.create(title="Spirit", slug="spirit-c", status=PublishStatus.PUBLISHED)
-    cohort = Cohort.objects.create(program=program, name="Jan", slug="jan-c", status=CohortStatus.RUNNING)
-    klass = Class.objects.create(cohort=cohort, name="Foundation", slug="f-c", status=PublishStatus.PUBLISHED)
+    program = Program.objects.create(
+        title="Spirit", slug="spirit-c", status=PublishStatus.PUBLISHED
+    )
+    cohort = Cohort.objects.create(
+        program=program, name="Jan", slug="jan-c", status=CohortStatus.RUNNING
+    )
+    klass = Class.objects.create(
+        cohort=cohort, name="Foundation", slug="f-c", status=PublishStatus.PUBLISHED
+    )
     enr = Enrollment.objects.create(
         user=student, class_ref=klass, cohort=cohort, status=EnrollmentStatus.ACTIVE
     )
@@ -60,7 +73,11 @@ def test_certificate_preview_issue_verify_revoke(api, db):
         format="json",
     )
     assert issued.status_code == 201, issued.data
-    code = issued.data["code"] if isinstance(issued.data, dict) and "code" in issued.data else issued.data[0]["code"]
+    code = (
+        issued.data["code"]
+        if isinstance(issued.data, dict) and "code" in issued.data
+        else issued.data[0]["code"]
+    )
 
     verify = api.get(f"/api/v1/public/certificates/verify/{code}")
     assert verify.status_code == 200

@@ -80,7 +80,9 @@ def m6_setup(db, student, tutor):
 
 
 def auth(api: APIClient, user: User) -> str:
-    r = api.post("/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json")
+    r = api.post(
+        "/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json"
+    )
     assert r.status_code == 200
     token = r.data["access"]
     api.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
@@ -275,9 +277,7 @@ def test_assignment_grade_rubric_release(api, m6_setup):
     assert gradebook.status_code == 200
     assert len(gradebook.data["columns"]) >= 1
     student_row = next(s for s in gradebook.data["students"] if s["user_id"] == str(student.id))
-    assert any(
-        g.get("released") and g.get("score") == 9.0 for g in student_row["grades"].values()
-    )
+    assert any(g.get("released") and g.get("score") == 9.0 for g in student_row["grades"].values())
 
     auth(api, student)
     after = api.get(f"/api/v1/submissions/{submission_id}")

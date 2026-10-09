@@ -30,7 +30,9 @@ class PaymentGatewaySettingsView(APIView):
         return Response(payment_services.gateway_public_payload(obj))
 
     def put(self, request):
-        obj = payment_services.update_gateway(data=request.data, actor=request.user, request=request)
+        obj = payment_services.update_gateway(
+            data=request.data, actor=request.user, request=request
+        )
         return Response(payment_services.gateway_public_payload(obj))
 
 

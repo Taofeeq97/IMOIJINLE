@@ -116,7 +116,9 @@ def _next_invoice_number() -> str:
     return f"{prefix}{seq:06d}"
 
 
-def create_application_invoice(*, user, amount_kobo: int, application_id: str, currency: str = "NGN") -> Invoice:
+def create_application_invoice(
+    *, user, amount_kobo: int, application_id: str, currency: str = "NGN"
+) -> Invoice:
     return Invoice.objects.create(
         user=user,
         number=_next_invoice_number(),
@@ -169,7 +171,9 @@ def resolve_fees_for_enrollment(enrollment) -> list[FeeRule]:
     """Return matching fee rules with narrower scope winning; exclusive stops fall-through."""
     candidates = [
         r
-        for r in FeeRule.objects.select_related("fee_item").filter(active=True, fee_item__active=True)
+        for r in FeeRule.objects.select_related("fee_item").filter(
+            active=True, fee_item__active=True
+        )
         if _rule_matches_enrollment(r, enrollment)
     ]
     candidates.sort(
@@ -240,7 +244,9 @@ def generate_installment_lines(
         rem = amount_minor - base * count
         amounts = [base + (1 if i < rem else 0) for i in range(count)]
         interval = (plan.get("interval") or "monthly").lower()
-        first_due = _parse_relative_due(plan.get("first_due"), base_at=timezone.now()) or timezone.now()
+        first_due = (
+            _parse_relative_due(plan.get("first_due"), base_at=timezone.now()) or timezone.now()
+        )
         for i, amt in enumerate(amounts, start=1):
             due = first_due
             if interval == "monthly" and i > 1:
@@ -352,13 +358,18 @@ def apply_fee_rules_on_admit(*, enrollment, actor=None, request=None) -> list[In
     return invoices
 
 
-def resolve_custom_charge_recipients(charge: CustomCharge | None = None, *, target_type: str = "", target_ids: list | None = None) -> list:
+def resolve_custom_charge_recipients(
+    charge: CustomCharge | None = None, *, target_type: str = "", target_ids: list | None = None
+) -> list:
     """Return distinct User instances who would receive invoices."""
     from apps.accounts.models import User
     from apps.admissions.models import Enrollment
 
     ttype = target_type or (charge.target_type if charge else "")
-    tids = [str(x) for x in (target_ids if target_ids is not None else (charge.target_ids if charge else []))]
+    tids = [
+        str(x)
+        for x in (target_ids if target_ids is not None else (charge.target_ids if charge else []))
+    ]
     user_ids: set = set()
 
     if ttype == CustomChargeTarget.USER:
@@ -366,12 +377,16 @@ def resolve_custom_charge_recipients(charge: CustomCharge | None = None, *, targ
     elif ttype == CustomChargeTarget.CLASS:
         user_ids.update(
             str(uid)
-            for uid in Enrollment.objects.filter(class_ref_id__in=tids).values_list("user_id", flat=True)
+            for uid in Enrollment.objects.filter(class_ref_id__in=tids).values_list(
+                "user_id", flat=True
+            )
         )
     elif ttype == CustomChargeTarget.COHORT:
         user_ids.update(
             str(uid)
-            for uid in Enrollment.objects.filter(cohort_id__in=tids).values_list("user_id", flat=True)
+            for uid in Enrollment.objects.filter(cohort_id__in=tids).values_list(
+                "user_id", flat=True
+            )
         )
     elif ttype == CustomChargeTarget.ENROLLMENTS:
         user_ids.update(
@@ -570,7 +585,9 @@ def initiate_payment(
 
     if idempotency_key:
         existing = Payment.objects.filter(
-            invoice=invoice, idempotency_key=idempotency_key, status__in=["initiated", "pending", "success"]
+            invoice=invoice,
+            idempotency_key=idempotency_key,
+            status__in=["initiated", "pending", "success"],
         ).first()
         if existing:
             return existing
@@ -644,7 +661,9 @@ def initiate_payment(
 
 
 @transaction.atomic
-def settle_payment(*, reference: str, verify_payload: dict | None = None, actor=None, request=None) -> Payment:
+def settle_payment(
+    *, reference: str, verify_payload: dict | None = None, actor=None, request=None
+) -> Payment:
     payment = Payment.objects.select_for_update().select_related("invoice").get(reference=reference)
     if payment.status == PaymentStatus.SUCCESS:
         return payment
@@ -694,7 +713,9 @@ def settle_payment(*, reference: str, verify_payload: dict | None = None, actor=
         attempt.save()
 
     invoice = payment.invoice
-    invoice.amount_paid_minor = min(invoice.amount_minor, invoice.amount_paid_minor + payment.amount_minor)
+    invoice.amount_paid_minor = min(
+        invoice.amount_minor, invoice.amount_paid_minor + payment.amount_minor
+    )
     if invoice.amount_paid_minor >= invoice.amount_minor:
         invoice.status = InvoiceStatus.PAID
         invoice.paid_at = timezone.now()
@@ -864,11 +885,14 @@ def finance_overview(*, currency: str = "NGN") -> dict:
     inv = Invoice.objects.filter(currency=currency).exclude(status=InvoiceStatus.VOID)
     invoiced = inv.aggregate(s=Sum("amount_minor"))["s"] or 0
     collected = (
-        Payment.objects.filter(currency=currency, status=PaymentStatus.SUCCESS).aggregate(s=Sum("amount_minor"))["s"]
+        Payment.objects.filter(currency=currency, status=PaymentStatus.SUCCESS).aggregate(
+            s=Sum("amount_minor")
+        )["s"]
         or 0
     )
     refunded = (
-        Refund.objects.filter(status=RefundStatus.PROCESSED).aggregate(s=Sum("amount_minor"))["s"] or 0
+        Refund.objects.filter(status=RefundStatus.PROCESSED).aggregate(s=Sum("amount_minor"))["s"]
+        or 0
     )
     outstanding_minor = 0
     overdue_minor = 0

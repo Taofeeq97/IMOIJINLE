@@ -33,7 +33,11 @@ def student(db):
 @pytest.fixture
 def tutor(db):
     u = User.objects.create_user(
-        email="tutorlearn@test.local", password="DemoPass123!", is_staff=True, first_name="Tu", last_name="Tor"
+        email="tutorlearn@test.local",
+        password="DemoPass123!",
+        is_staff=True,
+        first_name="Tu",
+        last_name="Tor",
     )
     assign_role(user=u, role=Role.TUTOR)
     return u
@@ -60,7 +64,9 @@ def learning_setup(db, student, tutor):
     Enrollment.objects.create(
         user=student, class_ref=klass, cohort=cohort, status=EnrollmentStatus.ACTIVE
     )
-    topic = Topic.objects.create(subject=subject, title="Getting started", order=0, is_published=True)
+    topic = Topic.objects.create(
+        subject=subject, title="Getting started", order=0, is_published=True
+    )
     lesson = Subtopic.objects.create(
         topic=topic,
         title="Welcome",
@@ -97,7 +103,9 @@ def learning_setup(db, student, tutor):
 
 
 def auth(api: APIClient, user: User) -> str:
-    r = api.post("/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json")
+    r = api.post(
+        "/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json"
+    )
     assert r.status_code == 200
     token = r.data["access"]
     api.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
@@ -174,7 +182,11 @@ def test_qa_and_notes(api, learning_setup):
     auth(api, student)
     q = api.post(
         f"/api/v1/learn/subjects/{subject.id}/qa",
-        {"title": "What is spirit science?", "body": "Explain briefly.", "subtopic_id": str(lesson.id)},
+        {
+            "title": "What is spirit science?",
+            "body": "Explain briefly.",
+            "subtopic_id": str(lesson.id),
+        },
         format="json",
     )
     assert q.status_code == 201, q.data

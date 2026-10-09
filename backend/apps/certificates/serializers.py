@@ -112,7 +112,14 @@ class CertificateIssueRuleSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at", "template_name", "class_name", "subject_title"]
+        read_only_fields = [
+            "id",
+            "created_at",
+            "updated_at",
+            "template_name",
+            "class_name",
+            "subject_title",
+        ]
 
 
 class CertificateIssueRuleWriteSerializer(serializers.Serializer):

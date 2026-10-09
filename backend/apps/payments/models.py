@@ -55,10 +55,14 @@ class FeeBilling(models.TextChoices):
 
 class FeeRule(BaseModel):
     fee_item = models.ForeignKey(FeeItem, on_delete=models.CASCADE, related_name="rules")
-    scope_type = models.CharField(max_length=32, choices=FeeScopeType.choices, default=FeeScopeType.CLASS)
+    scope_type = models.CharField(
+        max_length=32, choices=FeeScopeType.choices, default=FeeScopeType.CLASS
+    )
     scope_id = models.UUIDField(null=True, blank=True, db_index=True)
     mode = models.CharField(max_length=16, choices=FeeMode.choices, default=FeeMode.MANDATORY)
-    billing = models.CharField(max_length=24, choices=FeeBilling.choices, default=FeeBilling.ONE_OFF)
+    billing = models.CharField(
+        max_length=24, choices=FeeBilling.choices, default=FeeBilling.ONE_OFF
+    )
     plan = models.JSONField(default=dict, blank=True)
     due_rule = models.JSONField(default=dict, blank=True)
     gate_rule = models.JSONField(default=dict, blank=True)
@@ -129,10 +133,14 @@ class InvoiceSource(models.TextChoices):
 
 
 class Invoice(BaseModel):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="invoices")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="invoices"
+    )
     number = models.CharField(max_length=64, blank=True, db_index=True)
     kind = models.CharField(max_length=32, choices=InvoiceKind.choices)
-    status = models.CharField(max_length=32, choices=InvoiceStatus.choices, default=InvoiceStatus.OPEN)
+    status = models.CharField(
+        max_length=32, choices=InvoiceStatus.choices, default=InvoiceStatus.OPEN
+    )
     currency = models.CharField(max_length=3, default="NGN")
     amount_minor = models.BigIntegerField()
     amount_paid_minor = models.BigIntegerField(default=0)
@@ -212,12 +220,16 @@ class PaymentStatus(models.TextChoices):
 
 class Payment(BaseModel):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="payments")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="payments")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="payments"
+    )
     amount_minor = models.BigIntegerField()
     currency = models.CharField(max_length=3, default="NGN")
     provider = models.CharField(max_length=32, default="paystack")
     reference = models.CharField(max_length=64, unique=True, db_index=True)
-    status = models.CharField(max_length=32, choices=PaymentStatus.choices, default=PaymentStatus.INITIATED)
+    status = models.CharField(
+        max_length=32, choices=PaymentStatus.choices, default=PaymentStatus.INITIATED
+    )
     channel = models.CharField(max_length=32, blank=True)
     access_code = models.CharField(max_length=128, blank=True)
     authorization_url = models.URLField(blank=True)
@@ -311,8 +323,12 @@ class Refund(BaseModel):
 
 
 class AccessOverride(BaseModel):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="access_overrides")
-    scope_type = models.CharField(max_length=32, choices=[("class", "Class"), ("subject", "Subject")])
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="access_overrides"
+    )
+    scope_type = models.CharField(
+        max_length=32, choices=[("class", "Class"), ("subject", "Subject")]
+    )
     scope_id = models.UUIDField(db_index=True)
     until = models.DateTimeField(null=True, blank=True)
     reason = models.CharField(max_length=255, blank=True)

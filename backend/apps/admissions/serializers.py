@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.admissions.models import Admission, Application, Enrollment
+from apps.admissions.models import Application, Enrollment
 
 
 class PublicApplySerializer(serializers.Serializer):

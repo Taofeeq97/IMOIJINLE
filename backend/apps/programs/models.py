@@ -34,7 +34,9 @@ class Program(BaseModel):
     summary = models.CharField(max_length=500, blank=True)
     description_rich = models.JSONField(default=dict, blank=True)
     cover = models.ImageField(upload_to="programs/", blank=True, null=True)
-    status = models.CharField(max_length=16, choices=PublishStatus.choices, default=PublishStatus.DRAFT)
+    status = models.CharField(
+        max_length=16, choices=PublishStatus.choices, default=PublishStatus.DRAFT
+    )
     category = models.CharField(max_length=64, blank=True)
     default_currency = models.CharField(max_length=3, default="NGN")
 
@@ -75,7 +77,9 @@ class Cohort(BaseModel):
     end_date = models.DateField(null=True, blank=True)
     timezone = models.CharField(max_length=64, default="Africa/Lagos")
     capacity = models.PositiveIntegerField(default=50)
-    status = models.CharField(max_length=32, choices=CohortStatus.choices, default=CohortStatus.PLANNED)
+    status = models.CharField(
+        max_length=32, choices=CohortStatus.choices, default=CohortStatus.PLANNED
+    )
     application_opens_at = models.DateTimeField(null=True, blank=True)
     application_closes_at = models.DateTimeField(null=True, blank=True)
     application_fee_kobo = models.BigIntegerField(
@@ -112,7 +116,9 @@ class Class(BaseModel):
     slug = models.SlugField(max_length=220, blank=True)
     description = models.TextField(blank=True)
     cover = models.ImageField(upload_to="classes/", blank=True, null=True)
-    status = models.CharField(max_length=16, choices=PublishStatus.choices, default=PublishStatus.DRAFT)
+    status = models.CharField(
+        max_length=16, choices=PublishStatus.choices, default=PublishStatus.DRAFT
+    )
     capacity = models.PositiveIntegerField(default=50)
     starts_at = models.DateTimeField(null=True, blank=True)
     ends_at = models.DateTimeField(null=True, blank=True)
@@ -132,7 +138,11 @@ class Class(BaseModel):
             base = slugify(self.name)[:200] or "class"
             candidate = base
             n = 1
-            while Class.objects.filter(cohort=self.cohort, slug=candidate).exclude(pk=self.pk).exists():
+            while (
+                Class.objects.filter(cohort=self.cohort, slug=candidate)
+                .exclude(pk=self.pk)
+                .exists()
+            ):
                 n += 1
                 candidate = f"{base}-{n}"
             self.slug = candidate
@@ -146,7 +156,9 @@ class TutorRole(models.TextChoices):
 
 class ClassTutor(BaseModel):
     class_ref = models.ForeignKey(Class, on_delete=models.CASCADE, related_name="tutors")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="class_tutors")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="class_tutors"
+    )
     role = models.CharField(max_length=16, choices=TutorRole.choices, default=TutorRole.LEAD)
 
     class Meta:
@@ -162,7 +174,9 @@ class SubjectAttachMode(models.TextChoices):
 
 class ClassSubject(BaseModel):
     class_ref = models.ForeignKey(Class, on_delete=models.CASCADE, related_name="class_subjects")
-    subject = models.ForeignKey("courses.Subject", on_delete=models.CASCADE, related_name="class_links")
+    subject = models.ForeignKey(
+        "courses.Subject", on_delete=models.CASCADE, related_name="class_links"
+    )
     order = models.PositiveIntegerField(default=0)
     mode = models.CharField(
         max_length=16, choices=SubjectAttachMode.choices, default=SubjectAttachMode.LINKED

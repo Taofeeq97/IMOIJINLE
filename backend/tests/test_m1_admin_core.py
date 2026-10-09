@@ -40,7 +40,9 @@ def finance_user(db):
 
 
 def auth(api: APIClient, user: User) -> str:
-    r = api.post("/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json")
+    r = api.post(
+        "/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json"
+    )
     assert r.status_code == 200
     token = r.data["access"]
     api.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
@@ -151,7 +153,9 @@ def test_publish_subject_requires_topic(api, admin_user):
     subject = api.post("/api/v1/subjects/", {"title": "Empty"}, format="json")
     r = api.post(f"/api/v1/subjects/{subject.data['id']}/publish/", {}, format="json")
     assert r.status_code == 400
-    topic = api.post(f"/api/v1/subjects/{subject.data['id']}/topics/", {"title": "T1"}, format="json")
+    topic = api.post(
+        f"/api/v1/subjects/{subject.data['id']}/topics/", {"title": "T1"}, format="json"
+    )
     assert topic.status_code == 201
     # Still incomplete without a subtopic (M3 publish checklist)
     r_mid = api.post(f"/api/v1/subjects/{subject.data['id']}/publish/", {}, format="json")

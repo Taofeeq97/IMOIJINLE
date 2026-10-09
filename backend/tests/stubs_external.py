@@ -71,7 +71,11 @@ def stub_storage():
         if object_key not in store:
             # Treat as uploaded for test complete flow after we mark it
             store[object_key] = b"x"
-        return {"ContentLength": len(store[object_key]), "ContentType": "application/octet-stream", "ETag": '"x"'}
+        return {
+            "ContentLength": len(store[object_key]),
+            "ContentType": "application/octet-stream",
+            "ETag": '"x"',
+        }
 
     def download(*, object_key):
         return store.get(object_key, b"%PDF-1.4")
@@ -91,14 +95,23 @@ def stub_storage():
 def stub_mux():
     with patch(
         "apps.integrations.mux.create_direct_upload",
-        return_value={"id": "upload_test", "url": "https://upload.mux.com/test", "status": "waiting"},
+        return_value={
+            "id": "upload_test",
+            "url": "https://upload.mux.com/test",
+            "status": "waiting",
+        },
     ):
-        with patch("apps.integrations.mux.get_asset", return_value={"status": "ready", "playback_ids": [{"id": "play_test"}], "duration": 12}):
+        with patch(
+            "apps.integrations.mux.get_asset",
+            return_value={"status": "ready", "playback_ids": [{"id": "play_test"}], "duration": 12},
+        ):
             yield
 
 
 @pytest.fixture
 def stub_documents():
-    with patch("apps.integrations.documents.convert_office_to_pdf", return_value=b"%PDF-1.4 converted"):
+    with patch(
+        "apps.integrations.documents.convert_office_to_pdf", return_value=b"%PDF-1.4 converted"
+    ):
         with patch("apps.integrations.documents.ensure_converter_configured"):
             yield

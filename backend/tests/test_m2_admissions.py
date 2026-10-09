@@ -54,7 +54,9 @@ def open_cohort(db):
 
 
 def auth(api: APIClient, user: User) -> str:
-    r = api.post("/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json")
+    r = api.post(
+        "/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json"
+    )
     assert r.status_code == 200
     token = r.data["access"]
     api.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")

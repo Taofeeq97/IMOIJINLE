@@ -10,7 +10,11 @@ router.register(r"subtopics", views.SubtopicViewSet, basename="subtopic")
 
 urlpatterns = [
     path("uploads/presign", views.UploadPresignView.as_view(), name="uploads-presign"),
-    path("uploads/<uuid:upload_id>/complete", views.UploadCompleteView.as_view(), name="uploads-complete"),
+    path(
+        "uploads/<uuid:upload_id>/complete",
+        views.UploadCompleteView.as_view(),
+        name="uploads-complete",
+    ),
     path(
         "subtopics/<uuid:subtopic_id>/mux-upload",
         views.MuxDirectUploadView.as_view(),
@@ -22,7 +26,9 @@ urlpatterns = [
         views.VideoPlaybackTokenView.as_view(),
         name="video-playback-token",
     ),
-    path("resources/<uuid:resource_id>", views.ResourceDeleteView.as_view(), name="resource-delete"),
+    path(
+        "resources/<uuid:resource_id>", views.ResourceDeleteView.as_view(), name="resource-delete"
+    ),
     path(
         "public/subjects/<uuid:subject_id>/preview",
         views.PublicPreviewView.as_view(),

@@ -54,7 +54,9 @@ def create_direct_upload(
         "cors_origin": cors_origin,
         "new_asset_settings": new_asset_settings
         or {
-            "playback_policy": ["signed"] if getattr(settings, "MUX_PLAYBACK_POLICY", "signed") == "signed" else ["public"],
+            "playback_policy": ["signed"]
+            if getattr(settings, "MUX_PLAYBACK_POLICY", "signed") == "signed"
+            else ["public"],
             "mp4_support": "standard",
         },
     }
@@ -68,12 +70,18 @@ def create_direct_upload(
     )
     data = resp.json() if resp.content else {}
     if resp.status_code >= 400:
-        raise MuxError(data.get("error", {}).get("messages", [resp.text])[0] if isinstance(data.get("error"), dict) else (resp.text or "Mux upload create failed"))
+        raise MuxError(
+            data.get("error", {}).get("messages", [resp.text])[0]
+            if isinstance(data.get("error"), dict)
+            else (resp.text or "Mux upload create failed")
+        )
     return data.get("data") or {}
 
 
 def get_upload(upload_id: str) -> dict[str, Any]:
-    resp = requests.get(f"{MUX_API}/video/v1/uploads/{upload_id}", headers=_auth_header(), timeout=30)
+    resp = requests.get(
+        f"{MUX_API}/video/v1/uploads/{upload_id}", headers=_auth_header(), timeout=30
+    )
     data = resp.json() if resp.content else {}
     if resp.status_code >= 400:
         raise MuxError(resp.text or "Mux get upload failed")
@@ -89,7 +97,9 @@ def get_asset(asset_id: str) -> dict[str, Any]:
 
 
 def create_asset_from_url(*, input_url: str, passthrough: str = "") -> dict[str, Any]:
-    policy = ["signed"] if getattr(settings, "MUX_PLAYBACK_POLICY", "signed") == "signed" else ["public"]
+    policy = (
+        ["signed"] if getattr(settings, "MUX_PLAYBACK_POLICY", "signed") == "signed" else ["public"]
+    )
     payload: dict[str, Any] = {
         "input": [{"url": input_url}],
         "playback_policy": policy,
@@ -97,7 +107,9 @@ def create_asset_from_url(*, input_url: str, passthrough: str = "") -> dict[str,
     }
     if passthrough:
         payload["passthrough"] = passthrough
-    resp = requests.post(f"{MUX_API}/video/v1/assets", headers=_auth_header(), json=payload, timeout=30)
+    resp = requests.post(
+        f"{MUX_API}/video/v1/assets", headers=_auth_header(), json=payload, timeout=30
+    )
     data = resp.json() if resp.content else {}
     if resp.status_code >= 400:
         raise MuxError(resp.text or "Mux create asset failed")

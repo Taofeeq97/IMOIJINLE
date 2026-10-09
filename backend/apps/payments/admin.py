@@ -75,8 +75,6 @@ class PaymentNotificationConfigAdmin(admin.ModelAdmin):
     list_filter = ("event", "enabled")
 
 
-
-
 @admin.register(PaystackWebhookEvent)
 class PaystackWebhookEventAdmin(admin.ModelAdmin):
     list_display = ("event_type", "signature_valid", "processed_at", "created_at")

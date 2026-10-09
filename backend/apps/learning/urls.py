@@ -4,7 +4,11 @@ from apps.learning import views
 
 urlpatterns = [
     path("me/learning", views.MyLearningView.as_view(), name="me-learning"),
-    path("learn/subjects/<slug:slug>/landing", views.SubjectLandingView.as_view(), name="subject-landing"),
+    path(
+        "learn/subjects/<slug:slug>/landing",
+        views.SubjectLandingView.as_view(),
+        name="subject-landing",
+    ),
     path(
         "learn/subjects/<uuid:subject_id>/outline",
         views.PlayerOutlineView.as_view(),

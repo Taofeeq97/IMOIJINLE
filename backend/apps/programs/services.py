@@ -15,7 +15,9 @@ from apps.programs.models import (
 )
 
 
-def _audit(actor, action: str, obj, after: dict | None = None, before: dict | None = None, request=None):
+def _audit(
+    actor, action: str, obj, after: dict | None = None, before: dict | None = None, request=None
+):
     log_audit(actor=actor, action=action, obj=obj, after=after, before=before, request=request)
 
 
@@ -23,7 +25,14 @@ def open_applications(*, cohort: Cohort, actor, request=None) -> Cohort:
     before = {"status": cohort.status}
     cohort.status = CohortStatus.APPLICATIONS_OPEN
     cohort.save(update_fields=["status", "updated_at"])
-    _audit(actor, "cohort.open_applications", cohort, after={"status": cohort.status}, before=before, request=request)
+    _audit(
+        actor,
+        "cohort.open_applications",
+        cohort,
+        after={"status": cohort.status},
+        before=before,
+        request=request,
+    )
     return cohort
 
 
@@ -31,7 +40,14 @@ def close_applications(*, cohort: Cohort, actor, request=None) -> Cohort:
     before = {"status": cohort.status}
     cohort.status = CohortStatus.APPLICATIONS_CLOSED
     cohort.save(update_fields=["status", "updated_at"])
-    _audit(actor, "cohort.close_applications", cohort, after={"status": cohort.status}, before=before, request=request)
+    _audit(
+        actor,
+        "cohort.close_applications",
+        cohort,
+        after={"status": cohort.status},
+        before=before,
+        request=request,
+    )
     return cohort
 
 
@@ -39,7 +55,14 @@ def publish_class(*, class_obj: Class, actor, request=None) -> Class:
     before = {"status": class_obj.status}
     class_obj.status = PublishStatus.PUBLISHED
     class_obj.save(update_fields=["status", "updated_at"])
-    _audit(actor, "class.publish", class_obj, after={"status": class_obj.status}, before=before, request=request)
+    _audit(
+        actor,
+        "class.publish",
+        class_obj,
+        after={"status": class_obj.status},
+        before=before,
+        request=request,
+    )
     return class_obj
 
 
@@ -188,7 +211,9 @@ def duplicate_cohort(*, cohort: Cohort, actor=None, request=None) -> Cohort:
     return clone
 
 
-def ensure_class_tutor(*, class_obj: Class, user, role: str = "lead", actor=None, request=None) -> ClassTutor:
+def ensure_class_tutor(
+    *, class_obj: Class, user, role: str = "lead", actor=None, request=None
+) -> ClassTutor:
     tutor, created = ClassTutor.objects.get_or_create(
         class_ref=class_obj, user=user, defaults={"role": role}
     )

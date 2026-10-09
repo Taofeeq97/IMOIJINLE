@@ -101,7 +101,9 @@ def _recipients_for(announcement: Announcement):
     st = announcement.scope_type
     sid = announcement.scope_id
     if st == "global":
-        return list(User.objects.filter(is_active=True, role_assignments__role="student").distinct())
+        return list(
+            User.objects.filter(is_active=True, role_assignments__role="student").distinct()
+        )
     if st == "user" and sid:
         return list(User.objects.filter(id=sid))
     if st == "class" and sid:
@@ -117,7 +119,9 @@ def _recipients_for(announcement: Announcement):
     if st == "subject" and sid:
         from apps.programs.models import ClassSubject
 
-        class_ids = ClassSubject.objects.filter(subject_id=sid).values_list("class_ref_id", flat=True)
+        class_ids = ClassSubject.objects.filter(subject_id=sid).values_list(
+            "class_ref_id", flat=True
+        )
         user_ids = Enrollment.objects.filter(
             class_ref_id__in=class_ids, status=EnrollmentStatus.ACTIVE
         ).values_list("user_id", flat=True)

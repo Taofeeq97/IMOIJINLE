@@ -35,7 +35,9 @@ class Announcement(BaseModel):
 
 
 class Notification(BaseModel):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notifications")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notifications"
+    )
     kind = models.CharField(max_length=64)
     title = models.CharField(max_length=255)
     body = models.TextField(blank=True)

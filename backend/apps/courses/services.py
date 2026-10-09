@@ -169,7 +169,9 @@ def publish_subject(*, subject: Subject, actor, request=None, force: bool = Fals
     return subject
 
 
-def create_preview_token(*, subject: Subject, actor, request=None) -> tuple[str, SubjectPreviewToken]:
+def create_preview_token(
+    *, subject: Subject, actor, request=None
+) -> tuple[str, SubjectPreviewToken]:
     raw = secrets.token_urlsafe(32)
     token = SubjectPreviewToken.objects.create(
         subject=subject,
@@ -266,7 +268,11 @@ def complete_upload(*, session: UploadSession, actor=None, request=None) -> Uplo
         actor=actor or session.user,
         action="upload.complete",
         obj=session,
-        after={"filename": session.filename, "size_bytes": session.size_bytes, "object_key": session.object_key},
+        after={
+            "filename": session.filename,
+            "size_bytes": session.size_bytes,
+            "object_key": session.object_key,
+        },
         request=request,
     )
     return session
@@ -487,7 +493,13 @@ def duplicate_topic(*, topic: Topic, actor=None, request=None) -> Topic:
     )
     for sub in topic.subtopics.all():
         duplicate_subtopic(subtopic=sub, target_topic=clone, actor=actor, request=request)
-    log_audit(actor=actor, action="topic.duplicate", obj=clone, after={"source": str(topic.id)}, request=request)
+    log_audit(
+        actor=actor,
+        action="topic.duplicate",
+        obj=clone,
+        after={"source": str(topic.id)},
+        request=request,
+    )
     return clone
 
 
@@ -538,7 +550,13 @@ def duplicate_subtopic(
             order=res.order,
             download_allowed=res.download_allowed,
         )
-    log_audit(actor=actor, action="subtopic.duplicate", obj=clone, after={"source": str(subtopic.id)}, request=request)
+    log_audit(
+        actor=actor,
+        action="subtopic.duplicate",
+        obj=clone,
+        after={"source": str(subtopic.id)},
+        request=request,
+    )
     return clone
 
 

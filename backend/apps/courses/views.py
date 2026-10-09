@@ -52,7 +52,13 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         obj = serializer.save()
-        log_audit(actor=self.request.user, action="subject.create", obj=obj, after=serializer.data, request=self.request)
+        log_audit(
+            actor=self.request.user,
+            action="subject.create",
+            obj=obj,
+            after=serializer.data,
+            request=self.request,
+        )
 
     def perform_update(self, serializer):
         before = SubjectSerializer(serializer.instance, context=self.get_serializer_context()).data
@@ -94,7 +100,13 @@ class SubjectViewSet(viewsets.ModelViewSet):
         ser.is_valid(raise_exception=True)
         subject.intended_learners = ser.validated_data
         subject.save(update_fields=["intended_learners", "updated_at"])
-        log_audit(actor=request.user, action="subject.intended_learners", obj=subject, after=ser.validated_data, request=request)
+        log_audit(
+            actor=request.user,
+            action="subject.intended_learners",
+            obj=subject,
+            after=ser.validated_data,
+            request=request,
+        )
         return Response(subject.intended_learners)
 
     @action(detail=True, methods=["get", "put"], url_path="landing")
@@ -117,12 +129,20 @@ class SubjectViewSet(viewsets.ModelViewSet):
     def pricing(self, request, id=None):
         subject = self.get_object()
         if request.method == "GET":
-            return Response(subject.pricing or {"mode": "free", "amount_kobo": 0, "currency": "NGN"})
+            return Response(
+                subject.pricing or {"mode": "free", "amount_kobo": 0, "currency": "NGN"}
+            )
         ser = PricingSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
         subject.pricing = ser.validated_data
         subject.save(update_fields=["pricing", "updated_at"])
-        log_audit(actor=request.user, action="subject.pricing", obj=subject, after=ser.validated_data, request=request)
+        log_audit(
+            actor=request.user,
+            action="subject.pricing",
+            obj=subject,
+            after=ser.validated_data,
+            request=request,
+        )
         return Response(subject.pricing)
 
     @action(detail=True, methods=["get", "put"], url_path="messages")
@@ -164,7 +184,12 @@ class SubjectViewSet(viewsets.ModelViewSet):
             )
         except services.CourseError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response(SubjectSerializer(obj, context=self.get_serializer_context()).data)
@@ -184,8 +209,13 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="duplicate")
     def duplicate(self, request, id=None):
-        clone = program_services.duplicate_subject(subject=self.get_object(), actor=request.user, request=request)
-        return Response(SubjectSerializer(clone, context=self.get_serializer_context()).data, status=status.HTTP_201_CREATED)
+        clone = program_services.duplicate_subject(
+            subject=self.get_object(), actor=request.user, request=request
+        )
+        return Response(
+            SubjectSerializer(clone, context=self.get_serializer_context()).data,
+            status=status.HTTP_201_CREATED,
+        )
 
     @action(detail=True, methods=["get", "post"], url_path="topics")
     def topics(self, request, id=None):
@@ -199,7 +229,9 @@ class SubjectViewSet(viewsets.ModelViewSet):
         ser = TopicSerializer(data=data)
         ser.is_valid(raise_exception=True)
         topic = ser.save()
-        log_audit(actor=request.user, action="topic.create", obj=topic, after=ser.data, request=request)
+        log_audit(
+            actor=request.user, action="topic.create", obj=topic, after=ser.data, request=request
+        )
         return Response(TopicSerializer(topic).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"], url_path="topics/reorder")
@@ -207,7 +239,9 @@ class SubjectViewSet(viewsets.ModelViewSet):
         subject = self.get_object()
         ser = ReorderSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
-        program_services.reorder_items(queryset=subject.topics.all(), ordered_ids=ser.validated_data["ordered_ids"])
+        program_services.reorder_items(
+            queryset=subject.topics.all(), ordered_ids=ser.validated_data["ordered_ids"]
+        )
         log_audit(
             actor=request.user,
             action="subject.reorder_topics",
@@ -250,7 +284,9 @@ class TopicViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="duplicate")
     def duplicate(self, request, id=None):
-        clone = services.duplicate_topic(topic=self.get_object(), actor=request.user, request=request)
+        clone = services.duplicate_topic(
+            topic=self.get_object(), actor=request.user, request=request
+        )
         return Response(TopicSerializer(clone).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["get", "post"], url_path="subtopics")
@@ -265,7 +301,9 @@ class TopicViewSet(viewsets.ModelViewSet):
         ser = SubtopicSerializer(data=data)
         ser.is_valid(raise_exception=True)
         sub = ser.save()
-        log_audit(actor=request.user, action="subtopic.create", obj=sub, after=ser.data, request=request)
+        log_audit(
+            actor=request.user, action="subtopic.create", obj=sub, after=ser.data, request=request
+        )
         return Response(
             SubtopicSerializer(sub, context={"request": request}).data,
             status=status.HTTP_201_CREATED,
@@ -276,7 +314,9 @@ class TopicViewSet(viewsets.ModelViewSet):
         topic = self.get_object()
         ser = ReorderSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
-        program_services.reorder_items(queryset=topic.subtopics.all(), ordered_ids=ser.validated_data["ordered_ids"])
+        program_services.reorder_items(
+            queryset=topic.subtopics.all(), ordered_ids=ser.validated_data["ordered_ids"]
+        )
         log_audit(
             actor=request.user,
             action="topic.reorder_subtopics",
@@ -289,7 +329,9 @@ class TopicViewSet(viewsets.ModelViewSet):
 
 
 class SubtopicViewSet(viewsets.ModelViewSet):
-    queryset = Subtopic.objects.select_related("topic", "content").prefetch_related("resources").all()
+    queryset = (
+        Subtopic.objects.select_related("topic", "content").prefetch_related("resources").all()
+    )
     serializer_class = SubtopicSerializer
     permission_classes = [IsAuthenticated, ContentManagePermission]
     lookup_field = "id"
@@ -325,7 +367,9 @@ class SubtopicViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="duplicate")
     def duplicate(self, request, id=None):
-        clone = services.duplicate_subtopic(subtopic=self.get_object(), actor=request.user, request=request)
+        clone = services.duplicate_subtopic(
+            subtopic=self.get_object(), actor=request.user, request=request
+        )
         return Response(
             SubtopicSerializer(clone, context=self.get_serializer_context()).data,
             status=status.HTTP_201_CREATED,
@@ -337,7 +381,9 @@ class SubtopicViewSet(viewsets.ModelViewSet):
         if request.method == "GET":
             if not hasattr(subtopic, "content") or not subtopic.content:
                 return Response({"detail": "No content"}, status=status.HTTP_404_NOT_FOUND)
-            return Response(SubtopicContentSerializer(subtopic.content, context={"request": request}).data)
+            return Response(
+                SubtopicContentSerializer(subtopic.content, context={"request": request}).data
+            )
         if request.method == "DELETE":
             if hasattr(subtopic, "content") and subtopic.content:
                 subtopic.content.delete()
@@ -352,7 +398,9 @@ class SubtopicViewSet(viewsets.ModelViewSet):
                 title=ser.validated_data.get("title") or "",
                 body_json=ser.validated_data.get("body_json"),
                 external_url=ser.validated_data.get("external_url") or "",
-                upload_id=str(ser.validated_data["upload_id"]) if ser.validated_data.get("upload_id") else None,
+                upload_id=str(ser.validated_data["upload_id"])
+                if ser.validated_data.get("upload_id")
+                else None,
                 mux_upload_id=ser.validated_data.get("mux_upload_id") or None,
                 video_asset_id=str(ser.validated_data["video_asset_id"])
                 if ser.validated_data.get("video_asset_id")
@@ -363,7 +411,12 @@ class SubtopicViewSet(viewsets.ModelViewSet):
             )
         except services.CourseError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response(SubtopicContentSerializer(content, context={"request": request}).data)
@@ -373,7 +426,9 @@ class SubtopicViewSet(viewsets.ModelViewSet):
         subtopic = self.get_object()
         if request.method == "GET":
             return Response(
-                SubtopicResourceSerializer(subtopic.resources.all(), many=True, context={"request": request}).data
+                SubtopicResourceSerializer(
+                    subtopic.resources.all(), many=True, context={"request": request}
+                ).data
             )
         ser = AddResourceSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
@@ -384,12 +439,19 @@ class SubtopicViewSet(viewsets.ModelViewSet):
                 title=ser.validated_data["title"],
                 actor=request.user,
                 url=ser.validated_data.get("url") or "",
-                upload_id=str(ser.validated_data["upload_id"]) if ser.validated_data.get("upload_id") else None,
+                upload_id=str(ser.validated_data["upload_id"])
+                if ser.validated_data.get("upload_id")
+                else None,
                 request=request,
             )
         except services.CourseError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response(
@@ -444,7 +506,11 @@ class MuxDirectUploadView(APIView):
             subtopic = Subtopic.objects.get(id=subtopic_id)
         except Subtopic.DoesNotExist:
             return Response({"code": "not_found", "message": "Subtopic not found."}, status=404)
-        origin = request.data.get("cors_origin") or request.headers.get("Origin") or settings.FRONTEND_URL
+        origin = (
+            request.data.get("cors_origin")
+            or request.headers.get("Origin")
+            or settings.FRONTEND_URL
+        )
         try:
             payload = services.create_mux_direct_upload(
                 subtopic=subtopic,
@@ -477,7 +543,11 @@ class MuxWebhookView(APIView):
         if event_type.startswith("video.upload."):
             upload_id = data.get("id")
             asset_id = data.get("asset_id") or ""
-            content = SubtopicContent.objects.filter(metadata__mux_upload_id=upload_id).select_related("video_asset").first()
+            content = (
+                SubtopicContent.objects.filter(metadata__mux_upload_id=upload_id)
+                .select_related("video_asset")
+                .first()
+            )
             if content and content.video_asset_id:
                 asset = content.video_asset
                 if asset_id:
@@ -524,7 +594,9 @@ class VideoPlaybackTokenView(APIView):
         except VideoAsset.DoesNotExist:
             return Response({"code": "not_found", "message": "Video not found."}, status=404)
         if not asset.playback_id:
-            return Response({"code": "not_ready", "message": "Video is still processing."}, status=400)
+            return Response(
+                {"code": "not_ready", "message": "Video is still processing."}, status=400
+            )
         try:
             token = mux.sign_playback_id(asset.playback_id)
         except MuxError as exc:

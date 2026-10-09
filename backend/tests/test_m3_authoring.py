@@ -19,7 +19,9 @@ def admin_user(db):
 
 
 def auth(api: APIClient, user: User) -> str:
-    r = api.post("/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json")
+    r = api.post(
+        "/api/v1/auth/login", {"email": user.email, "password": "DemoPass123!"}, format="json"
+    )
     assert r.status_code == 200
     token = r.data["access"]
     api.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
@@ -159,7 +161,9 @@ def test_authoring_workspace_flow(api, admin_user, stub_storage, stub_documents,
     assert word.data["processing_status"] in {"processing", "converted"}
 
     # Mux direct upload create
-    lesson3 = api.post(f"/api/v1/topics/{tid}/subtopics/", {"title": "Film", "kind": "subtopic"}, format="json")
+    lesson3 = api.post(
+        f"/api/v1/topics/{tid}/subtopics/", {"title": "Film", "kind": "subtopic"}, format="json"
+    )
     mux = api.post(
         f"/api/v1/subtopics/{lesson3.data['id']}/mux-upload",
         {"cors_origin": "http://localhost:3000"},

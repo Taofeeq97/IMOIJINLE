@@ -1,4 +1,4 @@
-﻿# Admin registrations intentionally minimal to avoid model-name drift during consolidation.
+# Admin registrations intentionally minimal to avoid model-name drift during consolidation.
 from django.contrib import admin
 
 from apps.assessments.models import Assignment, Quiz, Submission

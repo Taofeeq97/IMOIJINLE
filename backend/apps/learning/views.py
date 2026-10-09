@@ -38,7 +38,9 @@ class SubjectLandingView(APIView):
         try:
             return Response(services.subject_landing_payload(user=request.user, slug=slug))
         except services.LearningError as exc:
-            code = status.HTTP_404_NOT_FOUND if exc.code == "not_found" else status.HTTP_403_FORBIDDEN
+            code = (
+                status.HTTP_404_NOT_FOUND if exc.code == "not_found" else status.HTTP_403_FORBIDDEN
+            )
             return Response({"code": exc.code, "message": exc.message}, status=code)
 
 
@@ -49,7 +51,9 @@ class PlayerOutlineView(APIView):
         try:
             return Response(services.player_outline(user=request.user, subject_id=str(subject_id)))
         except services.LearningError as exc:
-            code = status.HTTP_404_NOT_FOUND if exc.code == "not_found" else status.HTTP_403_FORBIDDEN
+            code = (
+                status.HTTP_404_NOT_FOUND if exc.code == "not_found" else status.HTTP_403_FORBIDDEN
+            )
             return Response({"code": exc.code, "message": exc.message}, status=code)
 
 
@@ -58,9 +62,13 @@ class SubtopicViewerView(APIView):
 
     def get(self, request, subtopic_id):
         try:
-            return Response(services.viewer_payload(user=request.user, subtopic_id=str(subtopic_id)))
+            return Response(
+                services.viewer_payload(user=request.user, subtopic_id=str(subtopic_id))
+            )
         except services.LearningError as exc:
-            code = status.HTTP_404_NOT_FOUND if exc.code == "not_found" else status.HTTP_403_FORBIDDEN
+            code = (
+                status.HTTP_404_NOT_FOUND if exc.code == "not_found" else status.HTTP_403_FORBIDDEN
+            )
             return Response({"code": exc.code, "message": exc.message}, status=code)
 
 
@@ -83,7 +91,8 @@ class SubtopicHeartbeatView(APIView):
             {
                 "time_spent_s": ip.time_spent_s,
                 "status": ip.status,
-                "can_complete": ip.time_spent_s >= ip.subtopic.min_time_s or ip.status == "completed",
+                "can_complete": ip.time_spent_s >= ip.subtopic.min_time_s
+                or ip.status == "completed",
                 "min_time_s": ip.subtopic.min_time_s,
             }
         )

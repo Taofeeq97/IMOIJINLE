@@ -12,7 +12,9 @@ class VideoProgressSerializer(serializers.Serializer):
     position_s = serializers.IntegerField(min_value=0)
     duration_s = serializers.IntegerField(required=False, min_value=0, default=0)
     rate = serializers.FloatField(required=False, default=1.0)
-    segments = serializers.ListField(required=False, child=serializers.ListField(child=serializers.FloatField()))
+    segments = serializers.ListField(
+        required=False, child=serializers.ListField(child=serializers.FloatField())
+    )
     device_id = serializers.CharField(required=False, allow_blank=True)
     client_ts = serializers.IntegerField(required=False, default=0)
 

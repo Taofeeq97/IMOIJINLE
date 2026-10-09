@@ -127,9 +127,7 @@ class CertificateIssueRule(BaseModel):
     criteria = models.JSONField(default=dict, blank=True)
     auto_issue = models.BooleanField(default=False)
     valid_for_days = models.PositiveIntegerField(null=True, blank=True)
-    numbering_pattern = models.CharField(
-        max_length=120, default="IMO-{yyyy}-{seq:5}", blank=True
-    )
+    numbering_pattern = models.CharField(max_length=120, default="IMO-{yyyy}-{seq:5}", blank=True)
     is_active = models.BooleanField(default=True)
 
     class Meta:

@@ -1,9 +1,11 @@
-﻿from django.urls import path
+from django.urls import path
 
 from apps.assessments import views
 
 urlpatterns = [
-    path("subtopics/<uuid:subtopic_id>/quiz/", views.SubtopicQuizView.as_view(), name="subtopic-quiz"),
+    path(
+        "subtopics/<uuid:subtopic_id>/quiz/", views.SubtopicQuizView.as_view(), name="subtopic-quiz"
+    ),
     path("quizzes/<uuid:quiz_id>", views.QuizDetailView.as_view(), name="quiz-detail"),
     path(
         "quizzes/<uuid:quiz_id>/attempts",
@@ -40,7 +42,11 @@ urlpatterns = [
         views.AssignmentSubmissionsView.as_view(),
         name="assignment-submissions",
     ),
-    path("submissions/<uuid:submission_id>", views.SubmissionDetailView.as_view(), name="submission-detail"),
+    path(
+        "submissions/<uuid:submission_id>",
+        views.SubmissionDetailView.as_view(),
+        name="submission-detail",
+    ),
     path(
         "submissions/<uuid:submission_id>/grade",
         views.SubmissionGradeView.as_view(),

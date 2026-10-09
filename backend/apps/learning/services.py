@@ -7,7 +7,12 @@ from django.db.models import Q
 from django.utils import timezone
 
 from apps.admissions.models import Enrollment, EnrollmentStatus
-from apps.courses.models import ContentType, ProcessingStatus, Subject, SubjectStatus, Subtopic, Topic
+from apps.courses.models import (
+    ContentType,
+    Subject,
+    SubjectStatus,
+    Subtopic,
+)
 from apps.integrations import mux, storage
 from apps.integrations.mux import MuxError
 from apps.learning.models import (
@@ -42,18 +47,19 @@ def accessible_subject_ids(user) -> set[str]:
     class_ids = user_enrollments(user).values_list("class_ref_id", flat=True)
     return {
         str(sid)
-        for sid in ClassSubject.objects.filter(class_ref_id__in=class_ids).values_list("subject_id", flat=True)
+        for sid in ClassSubject.objects.filter(class_ref_id__in=class_ids).values_list(
+            "subject_id", flat=True
+        )
     }
 
 
-def assert_subject_access(*, user, subject: Subject, allow_preview: bool = False) -> Enrollment | None:
+def assert_subject_access(
+    *, user, subject: Subject, allow_preview: bool = False
+) -> Enrollment | None:
     if user.is_staff or user.is_superuser:
         return user_enrollments(user).first()
     enrollment = (
-        user_enrollments(user)
-        .filter(class_ref__class_subjects__subject=subject)
-        .distinct()
-        .first()
+        user_enrollments(user).filter(class_ref__class_subjects__subject=subject).distinct().first()
     )
     if enrollment:
         try:
@@ -126,7 +132,9 @@ def recompute_subject_progress(*, user, subject: Subject, enrollment=None) -> Su
 
 
 def my_learning_payload(user) -> dict[str, Any]:
-    enrollments = list(user_enrollments(user).prefetch_related("class_ref__class_subjects__subject"))
+    enrollments = list(
+        user_enrollments(user).prefetch_related("class_ref__class_subjects__subject")
+    )
     continue_strip = None
     classes = []
     subjects_cards = []
@@ -161,7 +169,9 @@ def my_learning_payload(user) -> dict[str, Any]:
                 subjects_cards.append(card)
                 seen_subjects.add(str(subject.id))
             if sp and sp.last_accessed_at:
-                if continue_strip is None or (sp.last_accessed_at > continue_strip["last_accessed_at"]):
+                if continue_strip is None or (
+                    sp.last_accessed_at > continue_strip["last_accessed_at"]
+                ):
                     continue_strip = {
                         **card,
                         "last_accessed_at": sp.last_accessed_at,
@@ -191,7 +201,9 @@ def my_learning_payload(user) -> dict[str, Any]:
 
 def subject_landing_payload(*, user, slug: str) -> dict[str, Any]:
     try:
-        subject = Subject.objects.prefetch_related("instructors", "topics__subtopics").get(slug=slug)
+        subject = Subject.objects.prefetch_related("instructors", "topics__subtopics").get(
+            slug=slug
+        )
     except Subject.DoesNotExist as exc:
         raise LearningError("Subject not found.", code="not_found") from exc
 
@@ -249,7 +261,11 @@ def subject_landing_payload(*, user, slug: str) -> dict[str, Any]:
         "promo_video": subject.promo_video,
         "cover_image_url": subject.cover_image.url if subject.cover_image else None,
         "instructors": [
-            {"id": str(u.id), "name": f"{u.first_name} {u.last_name}".strip() or u.email, "email": u.email}
+            {
+                "id": str(u.id),
+                "name": f"{u.first_name} {u.last_name}".strip() or u.email,
+                "email": u.email,
+            }
             for u in subject.instructors.all()
         ],
         "has_access": has_access,
@@ -316,9 +332,11 @@ def player_outline(*, user, subject_id: str) -> dict[str, Any]:
 
 def viewer_payload(*, user, subtopic_id: str) -> dict[str, Any]:
     try:
-        subtopic = Subtopic.objects.select_related(
-            "topic__subject", "content", "content__video_asset"
-        ).prefetch_related("resources").get(id=subtopic_id)
+        subtopic = (
+            Subtopic.objects.select_related("topic__subject", "content", "content__video_asset")
+            .prefetch_related("resources")
+            .get(id=subtopic_id)
+        )
     except Subtopic.DoesNotExist as exc:
         raise LearningError("Subtopic not found.", code="not_found") from exc
 
@@ -419,7 +437,10 @@ def viewer_payload(*, user, subtopic_id: str) -> dict[str, Any]:
         except Exception:  # noqa: BLE001
             pass
 
-        if content.content_type in {ContentType.VIDEO, ContentType.VIDEO_SLIDES} and content.video_asset:
+        if (
+            content.content_type in {ContentType.VIDEO, ContentType.VIDEO_SLIDES}
+            and content.video_asset
+        ):
             asset = content.video_asset
             playback = {"playback_id": asset.playback_id, "token": None, "status": asset.status}
             if asset.playback_id:
@@ -456,7 +477,9 @@ def viewer_payload(*, user, subtopic_id: str) -> dict[str, Any]:
 
 
 @transaction.atomic
-def heartbeat(*, user, subtopic_id: str, delta_s: int = 5, position_s: int | None = None) -> ItemProgress:
+def heartbeat(
+    *, user, subtopic_id: str, delta_s: int = 5, position_s: int | None = None
+) -> ItemProgress:
     try:
         subtopic = Subtopic.objects.select_related("topic__subject").get(id=subtopic_id)
     except Subtopic.DoesNotExist as exc:
@@ -481,7 +504,9 @@ def heartbeat(*, user, subtopic_id: str, delta_s: int = 5, position_s: int | Non
                 # last-write for position; furthest is monotonic
                 vp.last_position_s = pos
                 vp.furthest_position_s = max(vp.furthest_position_s, pos)
-                duration = content.duration_s or (content.video_asset.duration_s if content.video_asset_id else 0)
+                duration = content.duration_s or (
+                    content.video_asset.duration_s if content.video_asset_id else 0
+                )
                 if duration:
                     vp.watched_pct = min(100, int(round((vp.furthest_position_s / duration) * 100)))
                 vp.save()
@@ -529,9 +554,7 @@ def upsert_video_progress(
     if segments:
         vp.watched_segments = segments
     dur = duration_s or (
-        subtopic.content.duration_s
-        if hasattr(subtopic, "content") and subtopic.content
-        else 0
+        subtopic.content.duration_s if hasattr(subtopic, "content") and subtopic.content else 0
     )
     if dur:
         vp.watched_pct = min(100, int(round((vp.furthest_position_s / dur) * 100)))
@@ -581,7 +604,11 @@ def complete_subtopic(*, user, subtopic_id: str, force: bool = False) -> ItemPro
 
 
 def list_questions(*, subject_id: str, subtopic_id: str | None = None, q: str = ""):
-    qs = Question.objects.filter(subject_id=subject_id).select_related("author").prefetch_related("answers__author")
+    qs = (
+        Question.objects.filter(subject_id=subject_id)
+        .select_related("author")
+        .prefetch_related("answers__author")
+    )
     if subtopic_id:
         qs = qs.filter(Q(subtopic_id=subtopic_id) | Q(subtopic__isnull=True))
     if q:
@@ -589,7 +616,9 @@ def list_questions(*, subject_id: str, subtopic_id: str | None = None, q: str = 
     return qs
 
 
-def create_question(*, user, subject: Subject, title: str, body: str, subtopic: Subtopic | None = None) -> Question:
+def create_question(
+    *, user, subject: Subject, title: str, body: str, subtopic: Subtopic | None = None
+) -> Question:
     assert_subject_access(user=user, subject=subject)
     return Question.objects.create(
         subject=subject, subtopic=subtopic, author=user, title=title, body=body
@@ -613,7 +642,9 @@ def list_notes(*, user, subtopic_id: str):
     return Note.objects.filter(user=user, subtopic_id=subtopic_id)
 
 
-def upsert_note(*, user, subtopic_id: str, body: str, timestamp_s: int | None = None, note_id: str | None = None) -> Note:
+def upsert_note(
+    *, user, subtopic_id: str, body: str, timestamp_s: int | None = None, note_id: str | None = None
+) -> Note:
     subtopic = Subtopic.objects.get(id=subtopic_id)
     assert_subtopic_access(user=user, subtopic=subtopic)
     if note_id:

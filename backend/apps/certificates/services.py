@@ -776,12 +776,10 @@ def verify_certificate(*, code: str, request=None) -> dict[str, Any]:
     ua = ""
     if request is not None:
         forwarded = request.META.get("HTTP_X_FORWARDED_FOR")
-        ip = (forwarded.split(",")[0].strip() if forwarded else request.META.get("REMOTE_ADDR") or "")
+        ip = forwarded.split(",")[0].strip() if forwarded else request.META.get("REMOTE_ADDR") or ""
         ua = (request.META.get("HTTP_USER_AGENT") or "")[:255]
     ip_hash = hashlib.sha256(ip.encode("utf-8")).hexdigest() if ip else ""
-    CertificateVerificationLog.objects.create(
-        certificate=cert, ip_hash=ip_hash, user_agent=ua
-    )
+    CertificateVerificationLog.objects.create(certificate=cert, ip_hash=ip_hash, user_agent=ua)
 
     snap = cert.data_snapshot or {}
     student = snap.get("student") or {}
@@ -845,7 +843,9 @@ def maybe_auto_issue_on_progress(*, user, subject, enrollment=None) -> list[Cert
     issued: list[Certificate] = []
     rules = (
         CertificateIssueRule.objects.filter(is_active=True, auto_issue=True)
-        .filter(Q(subject_id=subject.id) | Q(class_ref_id=enrollment.class_ref_id, subject__isnull=True))
+        .filter(
+            Q(subject_id=subject.id) | Q(class_ref_id=enrollment.class_ref_id, subject__isnull=True)
+        )
         .select_related("template", "subject", "class_ref")
     )
     for rule in rules:

@@ -43,7 +43,9 @@ class Subject(BaseModel):
     instructors = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name="subjects_instructing"
     )
-    status = models.CharField(max_length=16, choices=SubjectStatus.choices, default=SubjectStatus.DRAFT)
+    status = models.CharField(
+        max_length=16, choices=SubjectStatus.choices, default=SubjectStatus.DRAFT
+    )
     settings = models.JSONField(default=dict, blank=True)
     pricing = models.JSONField(
         default=dict,
@@ -95,7 +97,9 @@ class Subtopic(BaseModel):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name="subtopics")
     title = models.CharField(max_length=200)
     order = models.PositiveIntegerField(default=0)
-    kind = models.CharField(max_length=32, choices=SubtopicKind.choices, default=SubtopicKind.SUBTOPIC)
+    kind = models.CharField(
+        max_length=32, choices=SubtopicKind.choices, default=SubtopicKind.SUBTOPIC
+    )
     is_published = models.BooleanField(default=False)
     is_free_preview = models.BooleanField(default=False)
     estimated_time_s = models.PositiveIntegerField(default=0)
@@ -205,7 +209,9 @@ class UploadPurpose(models.TextChoices):
 
 
 class UploadSession(BaseModel):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="uploads")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="uploads"
+    )
     purpose = models.CharField(max_length=32, choices=UploadPurpose.choices)
     filename = models.CharField(max_length=255)
     mime_type = models.CharField(max_length=128, blank=True)

@@ -34,7 +34,12 @@ class RegisterView(APIView):
             user = services.register_user(request=request, **ser.validated_data)
         except services.AuthError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         access, refresh = services.issue_tokens(user)
@@ -61,7 +66,12 @@ class LoginView(APIView):
             )
         except services.AuthError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_401_UNAUTHORIZED,
             )
         resp = Response({"access": access, "user": services.serialize_me(user)})
@@ -90,7 +100,12 @@ class RefreshView(APIView):
             user, access, refresh = services.refresh_tokens(refresh_raw=raw, request=request)
         except services.AuthError as exc:
             resp = Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_401_UNAUTHORIZED,
             )
             services.clear_refresh_cookie(resp)
@@ -146,7 +161,12 @@ class PasswordResetView(APIView):
             )
         except services.AuthError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response({"detail": "Password updated."})
@@ -167,7 +187,12 @@ class VerifyEmailView(APIView):
             )
         except services.AuthError as exc:
             return Response(
-                {"code": exc.code, "message": exc.message, "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": exc.code,
+                    "message": exc.message,
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response({"detail": "Email verified."})

@@ -84,7 +84,9 @@ class ScopeType(models.TextChoices):
 class RoleAssignment(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="role_assignments")
     role = models.CharField(max_length=32, choices=Role.choices)
-    scope_type = models.CharField(max_length=16, choices=ScopeType.choices, default=ScopeType.GLOBAL)
+    scope_type = models.CharField(
+        max_length=16, choices=ScopeType.choices, default=ScopeType.GLOBAL
+    )
     scope_id = models.UUIDField(null=True, blank=True)
 
     class Meta:
@@ -118,7 +120,9 @@ class Profile(BaseModel):
 class Invitation(BaseModel):
     email = models.EmailField(db_index=True)
     role = models.CharField(max_length=32, choices=Role.choices)
-    scope_type = models.CharField(max_length=16, choices=ScopeType.choices, default=ScopeType.GLOBAL)
+    scope_type = models.CharField(
+        max_length=16, choices=ScopeType.choices, default=ScopeType.GLOBAL
+    )
     scope_id = models.UUIDField(null=True, blank=True)
     token_hash = models.CharField(max_length=128, unique=True)
     expires_at = models.DateTimeField()

@@ -44,7 +44,14 @@ class SubjectSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "version", "created_at", "updated_at", "topic_count", "cover_image_url"]
+        read_only_fields = [
+            "id",
+            "version",
+            "created_at",
+            "updated_at",
+            "topic_count",
+            "cover_image_url",
+        ]
         extra_kwargs = {
             "slug": {"required": False, "allow_blank": True},
             "cover_image": {"required": False, "allow_null": True},
@@ -60,7 +67,9 @@ class SubjectSerializer(serializers.ModelSerializer):
 
 class IntendedLearnersSerializer(serializers.Serializer):
     learn = serializers.ListField(child=serializers.CharField(max_length=160), allow_empty=True)
-    requirements = serializers.ListField(child=serializers.CharField(max_length=200), allow_empty=True)
+    requirements = serializers.ListField(
+        child=serializers.CharField(max_length=200), allow_empty=True
+    )
     audience = serializers.ListField(child=serializers.CharField(max_length=200), allow_empty=True)
 
 

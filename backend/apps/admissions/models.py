@@ -20,7 +20,9 @@ class ApplicationStatus(models.TextChoices):
 
 
 class Application(BaseModel):
-    cohort = models.ForeignKey("programs.Cohort", on_delete=models.CASCADE, related_name="applications")
+    cohort = models.ForeignKey(
+        "programs.Cohort", on_delete=models.CASCADE, related_name="applications"
+    )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="applications"
     )
@@ -59,8 +61,12 @@ class Application(BaseModel):
 
 
 class Admission(BaseModel):
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="admissions")
-    class_ref = models.ForeignKey("programs.Class", on_delete=models.CASCADE, related_name="admissions")
+    application = models.ForeignKey(
+        Application, on_delete=models.CASCADE, related_name="admissions"
+    )
+    class_ref = models.ForeignKey(
+        "programs.Class", on_delete=models.CASCADE, related_name="admissions"
+    )
     admitted_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL
     )
@@ -84,9 +90,15 @@ class EnrollmentStatus(models.TextChoices):
 
 
 class Enrollment(BaseModel):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="enrollments")
-    class_ref = models.ForeignKey("programs.Class", on_delete=models.CASCADE, related_name="enrollments")
-    cohort = models.ForeignKey("programs.Cohort", on_delete=models.CASCADE, related_name="enrollments")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="enrollments"
+    )
+    class_ref = models.ForeignKey(
+        "programs.Class", on_delete=models.CASCADE, related_name="enrollments"
+    )
+    cohort = models.ForeignKey(
+        "programs.Cohort", on_delete=models.CASCADE, related_name="enrollments"
+    )
     status = models.CharField(
         max_length=32, choices=EnrollmentStatus.choices, default=EnrollmentStatus.ACTIVE
     )

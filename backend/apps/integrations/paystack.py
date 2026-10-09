@@ -26,7 +26,9 @@ def _secret() -> str:
     return secret
 
 
-def request(method: str, path: str, payload: dict | None = None, *, secret: str | None = None) -> dict[str, Any]:
+def request(
+    method: str, path: str, payload: dict | None = None, *, secret: str | None = None
+) -> dict[str, Any]:
     key = secret or _secret()
     if not key:
         raise PaystackError("Paystack secret key is not configured.", code="paystack_unconfigured")
@@ -39,7 +41,9 @@ def request(method: str, path: str, payload: dict | None = None, *, secret: str 
     try:
         data = resp.json()
     except ValueError as exc:
-        raise PaystackError(f"Invalid Paystack response ({resp.status_code})", code="paystack_error") from exc
+        raise PaystackError(
+            f"Invalid Paystack response ({resp.status_code})", code="paystack_error"
+        ) from exc
     if resp.status_code >= 400 or not data.get("status"):
         raise PaystackError(data.get("message") or "Paystack request failed", code="paystack_error")
     return data

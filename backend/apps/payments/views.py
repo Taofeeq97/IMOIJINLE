@@ -60,14 +60,18 @@ class PaystackWebhookView(APIView):
 
     def post(self, request):
         raw = request.body
-        signature = request.headers.get("X-Paystack-Signature") or request.META.get("HTTP_X_PAYSTACK_SIGNATURE")
+        signature = request.headers.get("X-Paystack-Signature") or request.META.get(
+            "HTTP_X_PAYSTACK_SIGNATURE"
+        )
         event = persist_webhook_event(raw_body=raw, signature=signature)
         if not event.signature_valid:
             return Response({"detail": "Invalid signature"}, status=status.HTTP_401_UNAUTHORIZED)
         try:
             process_webhook_event(event)
         except PaymentError as exc:
-            return Response({"code": exc.code, "message": exc.message}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"code": exc.code, "message": exc.message}, status=status.HTTP_400_BAD_REQUEST
+            )
         return Response({"status": "ok"})
 
 
@@ -76,7 +80,9 @@ class PaymentStatusView(APIView):
 
     def get(self, request, reference):
         try:
-            payment = Payment.objects.select_related("invoice").get(reference=reference, user=request.user)
+            payment = Payment.objects.select_related("invoice").get(
+                reference=reference, user=request.user
+            )
         except Payment.DoesNotExist:
             if can(request.user, "finance.view_all") or can(request.user, "finance.manage"):
                 try:
@@ -198,7 +204,9 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_fields = ["status", "kind", "source", "currency"]
 
     def get_queryset(self):
-        qs = Invoice.objects.select_related("user", "fee_item", "custom_charge").prefetch_related("lines")
+        qs = Invoice.objects.select_related("user", "fee_item", "custom_charge").prefetch_related(
+            "lines"
+        )
         if can(self.request.user, "finance.view_all") or can(self.request.user, "finance.manage"):
             user_id = self.request.query_params.get("user_id")
             if user_id:
@@ -216,7 +224,9 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
             )
         ser = InvoicePaySerializer(data=request.data)
         ser.is_valid(raise_exception=True)
-        idem = request.headers.get("Idempotency-Key") or request.META.get("HTTP_IDEMPOTENCY_KEY") or ""
+        idem = (
+            request.headers.get("Idempotency-Key") or request.META.get("HTTP_IDEMPOTENCY_KEY") or ""
+        )
         try:
             payment = initiate_payment(
                 invoice=invoice,
@@ -335,12 +345,18 @@ class AccessExplainView(APIView):
         subject_id = request.query_params.get("subject_id")
         if not class_id and not subject_id:
             return Response(
-                {"code": "validation_error", "message": "Provide class_id and/or subject_id.", "fields": {}},
+                {
+                    "code": "validation_error",
+                    "message": "Provide class_id and/or subject_id.",
+                    "fields": {},
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         user = request.user
         user_id = request.query_params.get("user_id")
-        if user_id and (can(request.user, "finance.view_all") or can(request.user, "finance.manage")):
+        if user_id and (
+            can(request.user, "finance.view_all") or can(request.user, "finance.manage")
+        ):
             from apps.accounts.models import User
 
             try:

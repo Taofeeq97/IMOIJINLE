@@ -50,7 +50,9 @@ def convert_subtopic_content_task(self, content_id: str) -> dict:
             viewer = "pdf.js"
 
         preview_key = f"content/preview/{content.id}.pdf"
-        storage.upload_bytes(object_key=preview_key, data=preview_bytes, content_type="application/pdf")
+        storage.upload_bytes(
+            object_key=preview_key, data=preview_bytes, content_type="application/pdf"
+        )
         content.preview_file.save(f"{content.id}.pdf", ContentFile(preview_bytes), save=False)
         content.processing_status = ProcessingStatus.CONVERTED
         content.metadata = {
@@ -66,7 +68,7 @@ def convert_subtopic_content_task(self, content_id: str) -> dict:
         content.processing_status = ProcessingStatus.ERRORED
         content.metadata = {**(content.metadata or {}), "conversion_error": str(exc)}
         content.save(update_fields=["processing_status", "metadata", "updated_at"])
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc
 
 
 @shared_task(queue="media")

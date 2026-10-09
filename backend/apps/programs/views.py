@@ -110,7 +110,13 @@ class CohortViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         obj = serializer.save()
-        log_audit(actor=self.request.user, action="cohort.create", obj=obj, after=serializer.data, request=self.request)
+        log_audit(
+            actor=self.request.user,
+            action="cohort.create",
+            obj=obj,
+            after=serializer.data,
+            request=self.request,
+        )
 
     def perform_update(self, serializer):
         before = CohortSerializer(serializer.instance).data
@@ -136,17 +142,23 @@ class CohortViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="open-applications")
     def open_applications(self, request, id=None):
-        cohort = services.open_applications(cohort=self.get_object(), actor=request.user, request=request)
+        cohort = services.open_applications(
+            cohort=self.get_object(), actor=request.user, request=request
+        )
         return Response(CohortSerializer(cohort).data)
 
     @action(detail=True, methods=["post"], url_path="close-applications")
     def close_applications(self, request, id=None):
-        cohort = services.close_applications(cohort=self.get_object(), actor=request.user, request=request)
+        cohort = services.close_applications(
+            cohort=self.get_object(), actor=request.user, request=request
+        )
         return Response(CohortSerializer(cohort).data)
 
     @action(detail=True, methods=["post"], url_path="duplicate")
     def duplicate(self, request, id=None):
-        clone = services.duplicate_cohort(cohort=self.get_object(), actor=request.user, request=request)
+        clone = services.duplicate_cohort(
+            cohort=self.get_object(), actor=request.user, request=request
+        )
         return Response(CohortSerializer(clone).data, status=status.HTTP_201_CREATED)
 
 
@@ -160,7 +172,13 @@ class ClassViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         obj = serializer.save()
-        log_audit(actor=self.request.user, action="class.create", obj=obj, after=serializer.data, request=self.request)
+        log_audit(
+            actor=self.request.user,
+            action="class.create",
+            obj=obj,
+            after=serializer.data,
+            request=self.request,
+        )
 
     def perform_update(self, serializer):
         before = ClassSerializer(serializer.instance).data
@@ -186,12 +204,16 @@ class ClassViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="publish")
     def publish(self, request, id=None):
-        obj = services.publish_class(class_obj=self.get_object(), actor=request.user, request=request)
+        obj = services.publish_class(
+            class_obj=self.get_object(), actor=request.user, request=request
+        )
         return Response(ClassSerializer(obj).data)
 
     @action(detail=True, methods=["post"], url_path="duplicate")
     def duplicate(self, request, id=None):
-        clone = services.duplicate_class(class_obj=self.get_object(), actor=request.user, request=request)
+        clone = services.duplicate_class(
+            class_obj=self.get_object(), actor=request.user, request=request
+        )
         return Response(ClassSerializer(clone).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["get", "post"], url_path="subjects")
@@ -206,7 +228,12 @@ class ClassViewSet(viewsets.ModelViewSet):
             subject = Subject.objects.get(id=ser.validated_data["subject_id"])
         except Subject.DoesNotExist:
             return Response(
-                {"code": "not_found", "message": "Subject not found.", "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": "not_found",
+                    "message": "Subject not found.",
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_404_NOT_FOUND,
             )
         link = services.attach_subject(
@@ -248,7 +275,12 @@ class ClassSubjectDetailView(APIView):
             )
         except ClassSubject.DoesNotExist:
             return Response(
-                {"code": "not_found", "message": "Link not found.", "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": "not_found",
+                    "message": "Link not found.",
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_404_NOT_FOUND,
             )
         log_audit(
@@ -266,7 +298,12 @@ class ClassSubjectDetailView(APIView):
             link = ClassSubject.objects.get(id=class_subject_id, class_ref_id=class_id)
         except ClassSubject.DoesNotExist:
             return Response(
-                {"code": "not_found", "message": "Link not found.", "fields": {}, "request_id": getattr(request, "request_id", None)},
+                {
+                    "code": "not_found",
+                    "message": "Link not found.",
+                    "fields": {},
+                    "request_id": getattr(request, "request_id", None),
+                },
                 status=status.HTTP_404_NOT_FOUND,
             )
         mode = request.data.get("mode")
