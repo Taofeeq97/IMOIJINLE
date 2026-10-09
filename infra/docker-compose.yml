@@ -1,0 +1,144 @@
+# Imo Ijinle Academy LMS — local infrastructure (infra-only by default).
+# App services (api/web/worker) are stubbed for a later milestone.
+
+name: imo-ijinle-lms
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: imo_lms
+      POSTGRES_USER: imo
+      POSTGRES_PASSWORD: imo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U imo -d imo_lms"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio_secret_change_me
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    # Health: rely on minio-init retry loop if curl is unavailable in the image.
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_started
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 minio minio_secret_change_me 2>/dev/null; do
+        echo 'waiting for minio...';
+        sleep 2;
+      done;
+      mc mb local/imo-lms --ignore-existing;
+      echo 'bucket imo-lms ready';
+      "
+    restart: "no"
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    command:
+      - "gotenberg"
+      - "--api-timeout=120s"
+    ports:
+      - "3001:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- Application services (uncomment when backend/frontend images are ready) ---
+  #
+  # api:
+  #   build:
+  #     context: ..
+  #     dockerfile: infra/Dockerfile.api
+  #   env_file:
+  #     - ../.env
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     minio:
+  #       condition: service_started
+  #     mailpit:
+  #       condition: service_started
+  #
+  # web:
+  #   build:
+  #     context: ..
+  #     dockerfile: infra/Dockerfile.web
+  #   env_file:
+  #     - ../.env
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - api
+  #
+  # worker:
+  #   build:
+  #     context: ..
+  #     dockerfile: infra/Dockerfile.api
+  #   command: ["uv", "run", "celery", "-A", "config", "worker", "-l", "info"]
+  #   env_file:
+  #     - ../.env
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #
+  # beat:
+  #   build:
+  #     context: ..
+  #     dockerfile: infra/Dockerfile.api
+  #   command: ["uv", "run", "celery", "-A", "config", "beat", "-l", "info"]
+  #   env_file:
+  #     - ../.env
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

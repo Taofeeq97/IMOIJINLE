@@ -1,0 +1,144 @@
+# ---------------------------------------------------------------------------
+# Environment & secrets (never commit real credentials)
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+infra/.env
+infra/.env.*
+!infra/.env.example
+
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Common secret / key material
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+!*.example.pem
+secrets/
+credentials/
+credentials.json
+service-account*.json
+*-credentials.json
+*.secret
+*.secrets
+.secrets/
+
+# Mux / Paystack / cloud key dumps (if ever saved as files)
+paystack*.json
+mux*.json
+*.keystore
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+.virtualenv/
+virtualenv/
+uv.lock.bak
+
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+.eggs/
+dist/
+build/
+.hypothesis/
+.tox/
+.nox/
+.cache/
+pip-wheel-metadata/
+
+# ---------------------------------------------------------------------------
+# Django / local DB & uploads
+# ---------------------------------------------------------------------------
+*.log
+local_settings.py
+db.sqlite3
+*.sqlite3
+dev.sqlite3
+backend/dev.sqlite3
+media/
+staticfiles/
+private_media/
+
+# ---------------------------------------------------------------------------
+# Node / Next.js / frontend
+# ---------------------------------------------------------------------------
+node_modules/
+.pnpm-store/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+.vercel/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ---------------------------------------------------------------------------
+# Testing & E2E
+# ---------------------------------------------------------------------------
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.nyc_output/
+
+# ---------------------------------------------------------------------------
+# Celery / Redis / local runtime
+# ---------------------------------------------------------------------------
+celerybeat-schedule
+celerybeat.pid
+dump.rdb
+*.pid
+
+# ---------------------------------------------------------------------------
+# IDE & OS
+# ---------------------------------------------------------------------------
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ---------------------------------------------------------------------------
+# Misc local / backup noise
+# ---------------------------------------------------------------------------
+*.bak
+*.tmp
+*.temp
+*.orig
+.local/
+tmp/
+temp/

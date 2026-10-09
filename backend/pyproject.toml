@@ -1,0 +1,65 @@
+[project]
+name = "imo-ijinle-lms-backend"
+version = "0.1.0"
+description = "Imo Ijinle Academy LMS API"
+requires-python = ">=3.11"
+dependencies = [
+  "django>=5.0,<6",
+  "djangorestframework>=3.15",
+  "drf-spectacular>=0.27",
+  "djangorestframework-simplejwt>=5.3",
+  "django-allauth>=65.0",
+  "django-cors-headers>=4.4",
+  "django-filter>=24.3",
+  "django-storages[boto3]>=1.14",
+  "celery[redis]>=5.4",
+  "redis>=5.0",
+  "psycopg[binary]>=3.2",
+  "argon2-cffi>=23.1",
+  "sentry-sdk>=2.0",
+  "python-dotenv>=1.0",
+  "uuid6>=2024.1.12",
+  "Pillow>=10.0",
+  "gunicorn>=22.0",
+  "whitenoise>=6.7",
+  "requests>=2.34.2",
+  "pyjwt[crypto]>=2.9",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-django>=4.8",
+  "factory-boy>=3.3",
+  "freezegun>=1.5",
+  "ruff>=0.6",
+  "mypy>=1.11",
+  "django-stubs>=5.0",
+  "djangorestframework-stubs>=3.15",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.dev"
+python_files = ["test_*.py", "*_test.py"]
+addopts = "-q --tb=short"
+testpaths = ["tests", "apps"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = ["**/migrations/**", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "config.settings.dev"

@@ -1,0 +1,48 @@
+:root {
+  --background: #f7f5f0;
+  --foreground: #14201c;
+  --card: #ffffff;
+  --muted: #efece4;
+  --muted-foreground: #5b6b63;
+  --primary: #1f5c4d;
+  --primary-foreground: #ffffff;
+  --accent: #c8943a;
+  --secondary: #e4ece8;
+  --border: #ddd8ce;
+  --input: #ddd8ce;
+  --ring: #1f5c4d;
+  --success: #2e7d4f;
+  --warning: #b7791f;
+  --destructive: #b3372f;
+  --info: #2b6cb0;
+  --radius: 0.75rem;
+  --ink: #14201c;
+  --ink-2: #1e2c27;
+  --ink-foreground: #f4f2ec;
+  --font-ui: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-display: var(--font-fraunces), "Fraunces", Georgia, serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+}
+
+.dark {
+  /* Unified forest night palette — readable surfaces + clear hierarchy */
+  --background: #0c1210;
+  --foreground: #eef3ef;
+  --card: #151c19;
+  --muted: #1b2420;
+  --muted-foreground: #a7b5ad;
+  --primary: #5ec4ab;
+  --primary-foreground: #062019;
+  --accent: #e2b462;
+  --secondary: #24302b;
+  --border: #2c3833;
+  --input: #2c3833;
+  --ring: #5ec4ab;
+  --success: #4ade80;
+  --warning: #f0bf5a;
+  --destructive: #f07167;
+  --info: #6cb6ff;
+  --ink: #080c0a;
+  --ink-2: #101714;
+  --ink-foreground: #eef3ef;
+}
