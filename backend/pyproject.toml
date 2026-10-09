@@ -42,7 +42,7 @@ dev = [
 package = false
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "config.settings.dev"
+DJANGO_SETTINGS_MODULE = "config.settings.test"
 python_files = ["test_*.py", "*_test.py"]
 addopts = "-q --tb=short"
 testpaths = ["tests", "apps"]
